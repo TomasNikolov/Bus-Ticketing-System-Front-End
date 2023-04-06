@@ -1,0 +1,55 @@
+.card {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    margin-left: 35%;
+}
+
+.card-header {
+    background-color: #0d6efd;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bus-logo {
+    width: auto;
+    height: auto;
+}
+
+.card-body {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.btn-primary {
+    font-size: 1.2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0b5ed7;
+}
+
+.alert {
+    margin-top: 0.5rem;
+}
+
+body {
+    background-image: url("background-image.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
