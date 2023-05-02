@@ -60,9 +60,13 @@ function LoginPage() {
             // setAuth({ user, pwd, roles, accessToken });
 
             let token = response.headers.get("Authorization");
-            Cookies.set('token', token, { expires: 1 / 24 });
+            if (token !== null && token !== undefined) {
+                Cookies.set('token', token, { expires: 1 / 24 });
+                //TODO: Redirect to admin home page                
+            }
 
             setMessage("Login successful!");
+            Cookies.set("username", username);
             setUsername("");
             setPassword("");
             navigate("/home");

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import './styles/DashboardPage.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Table } from 'react-bootstrap';
 import Cookies from 'js-cookie';
 
 function DashboardPage() {
+    const username = Cookies.get("username");
     const [startDestination, setStartDestination] = useState('');
     const [endDestination, setEndDestination] = useState('');
     const [date, setDate] = useState('');
@@ -15,7 +15,6 @@ function DashboardPage() {
     const [startError, setStartError] = useState('');
     const [endError, setEndError] = useState('');
     const [dateError, setDateError] = useState('');
-    const [busList, setBusList] = useState([]);
     const [busData, setBusData] = useState([]);
     const navigate = useNavigate();
 
@@ -67,8 +66,7 @@ function DashboardPage() {
             const response = await axios.get(`http://localhost:8080/buses?start=${startDestination}&end=${endDestination}&date=${date}`,
                 {
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': Cookies.get('token')
+                        'Content-Type': 'application/json'
                     }
                 }
             );
@@ -93,9 +91,17 @@ function DashboardPage() {
         }
     }
 
-    const handleBooking = (busId) => {
-        // handle ticket booking
-        console.log(`Booking ticket for bus with ID: ${busId}`);
+    function handleBooking(bus) {
+        console.log("Booking ticket for bus with ID: ", bus.id);
+
+        Cookies.set("busId", bus.id);
+        Cookies.set("startDestination", bus.startDestination);
+        Cookies.set("endDestination", bus.endDestination);
+        Cookies.set("reservationDate", bus.departureDate);
+        Cookies.set("busCapacity", bus.capacity);
+        Cookies.set("availableSeats", bus.availableSeats);
+        Cookies.set("reservedSeats", bus.reservedSeats);
+        navigate("/booking")
     };
 
     return (
@@ -106,13 +112,13 @@ function DashboardPage() {
                     <div className="container-fluid" style={{ display: 'block' }}>
                         <div className="row">
                             <div className="col-7">
-                                <h4> Hi, Welcome <span>Test</span></h4>
+                                <h4> Hi, Welcome <span>{username}</span></h4>
                             </div>
                             <div className="col-3">
                                 <button className='btn anchor'>My Bookings</button>
                             </div>
                             <div className="col-1">
-                                <button class="btn anchor" onClick={handleLogout}> <i className="fa fa-arrow-circle-o-left"></i>&nbsp;Logout</button>
+                                <button className="btn anchor" onClick={handleLogout}> <i className="fa fa-arrow-circle-o-left"></i>&nbsp;Logout</button>
                             </div>
                         </div>
                     </div>
@@ -174,7 +180,7 @@ function DashboardPage() {
                                     <td type="datetime">{bus.dedepartureTime}</td>
                                     <td type="text">{bus.name}</td>
                                     <td type="number">{bus.distance}</td>
-                                    <td><Link to="#" className="btn btn-primary">Book</Link></td>
+                                    <td><button className="btn btn-primary" onClick={() => handleBooking(bus)}>Book</button></td>
                                 </tr>
                             ))}
                         </tbody>
