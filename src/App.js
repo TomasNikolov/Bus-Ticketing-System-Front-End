@@ -5,6 +5,7 @@ import RegisterPage from './components/RegisterPage';
 import DashboardPage from './components/DashboardPage';
 import BookingPage from './components/BookingPage';
 import TicketPreview from './components/TicketPreview';
+import PaymentPage from './components/PaymentPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path='/home' element={<DashboardPage />} />
           <Route path='/booking' element={<BookingPage />} />
           <Route path='/booking/ticket-preview' element={<TicketPreview />} />
+          <Route path='/booking/payment' element={<PaymentPage />} />
         </Routes>
       </Router>
     </div>

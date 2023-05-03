@@ -15,7 +15,7 @@ function TicketPreview() {
     const navigate = useNavigate();
 
     const handlePayClick = () => {
-        console.log('TICKET INFO: ', ticketInfo);
+        navigate('/booking/payment');
     };
 
     const handleDenyClick = () => {
@@ -94,9 +94,11 @@ function TicketPreview() {
 
 
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-                    <button className="btn btn-danger" style={{ borderRadius: "10px", padding: "5px 15px", fontSize: "18px", width: "20rem" }} onClick={handleDenyClick}>Deny Booking</button>
-                    <button className="btn-primary" style={{ borderRadius: "10px", padding: "5px 15px", fontSize: "18px", width: "20rem" }} onClick={handleEditClick}>Edit Booking</button>
-                    <button className="btn btn-success" style={{ borderRadius: "10px", padding: "5px 15px", fontSize: "18px", width: "20rem" }} onClick={handlePayClick}>Confirm and Pay</button>
+                    <button className="btn btn-danger" style={{ borderRadius: "10px", fontSize: "18px", width: "18rem" }} onClick={handleDenyClick}>Deny Booking</button>
+                    <div style={{width: "5%"}}></div>
+                    <button className="btn-primary" style={{ borderRadius: "10px", fontSize: "18px", width: "18rem" }} onClick={handleEditClick}>Edit Booking</button>
+                    <div style={{width: "5%"}}></div>
+                    <button className="btn btn-success" style={{ borderRadius: "10px", fontSize: "18px", width: "18rem" }} onClick={handlePayClick}>Confirm and Pay</button>
                 </div>
             </div>
 
