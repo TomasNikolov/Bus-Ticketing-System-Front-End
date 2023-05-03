@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import RegisterPage from './components/RegisterPage';
 import DashboardPage from './components/DashboardPage';
 import BookingPage from './components/BookingPage';
+import TicketPreview from './components/TicketPreview';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path='/register' element={<RegisterPage />} />
           <Route path='/home' element={<DashboardPage />} />
           <Route path='/booking' element={<BookingPage />} />
+          <Route path='/booking/ticket-preview' element={<TicketPreview />} />
         </Routes>
       </Router>
     </div>

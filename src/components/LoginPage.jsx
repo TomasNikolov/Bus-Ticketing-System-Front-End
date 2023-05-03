@@ -66,7 +66,7 @@ function LoginPage() {
             }
 
             setMessage("Login successful!");
-            Cookies.set("username", username);
+            localStorage.setItem("username", username);
             setUsername("");
             setPassword("");
             navigate("/home");

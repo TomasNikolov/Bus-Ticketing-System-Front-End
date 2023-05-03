@@ -7,7 +7,7 @@ import { Table } from 'react-bootstrap';
 import Cookies from 'js-cookie';
 
 function DashboardPage() {
-    const username = Cookies.get("username");
+    const username = localStorage.getItem("username");
     const [startDestination, setStartDestination] = useState('');
     const [endDestination, setEndDestination] = useState('');
     const [date, setDate] = useState('');
@@ -39,6 +39,7 @@ function DashboardPage() {
 
     const handleLogout = () => {
         Cookies.remove('token');
+        localStorage.clear();
         navigate("/");
     };
 
@@ -94,18 +95,21 @@ function DashboardPage() {
     function handleBooking(bus) {
         console.log("Booking ticket for bus with ID: ", bus.id);
 
-        Cookies.set("busId", bus.id);
-        Cookies.set("startDestination", bus.startDestination);
-        Cookies.set("endDestination", bus.endDestination);
-        Cookies.set("reservationDate", bus.departureDate);
-        Cookies.set("busCapacity", bus.capacity);
-        Cookies.set("availableSeats", bus.availableSeats);
-        Cookies.set("reservedSeats", bus.reservedSeats);
+        localStorage.setItem('busId', bus.id);
+        localStorage.setItem('startDestination', bus.startDestination);
+        localStorage.setItem('endDestination', bus.endDestination);
+        localStorage.setItem('reservationDate', bus.departureDate);
+        localStorage.setItem('busCapacity', bus.capacity);
+        localStorage.setItem('availableSeats', bus.availableSeats);
+        localStorage.setItem('departureTime', bus.departureTime);
+        localStorage.setItem('arrivalTime', bus.arrivalTime);
+        localStorage.setItem('departureDate', bus.departureDate);
+
         navigate("/booking")
     };
 
     return (
-        <div>
+        <div style={{ background: "#f5f5f5" }}>
             <nav className="navbar navbar-expand" style={{ display: 'block' }}>
                 <div className="navbar-header" style={{ marginLeft: "5rem" }}>
                     <h1>Bus Reservation Dashboard</h1>
@@ -205,7 +209,7 @@ function DashboardPage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-secondary text-center py-2">
+                <div className="bg-secondary text-center py-2" style={{height: "3.5rem"}}>
                     <p className="mb-0">&copy; 2023 Bus Reservation. All rights reserved.</p>
                 </div>
             </footer>

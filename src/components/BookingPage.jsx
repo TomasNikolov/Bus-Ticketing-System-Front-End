@@ -8,15 +8,15 @@ import Cookies from 'js-cookie';
 const BOOKING_URL = 'http://localhost:8080/booking/reserve-ticket';
 
 function BookingPage() {
-    const username = Cookies.get('username');
+    const username = localStorage.getItem('username');
     const [fullName, setFullName] = useState('');
     const [seats, setSeats] = useState(1);
-    const startDestination = Cookies.get('startDestination');
-    const endDestination = Cookies.get("endDestination");
-    const availableSeats = Cookies.get('availableSeats');
-    const busId = Cookies.get('busId');
-    const busCapacity = Cookies.get('busCapacity');
-    const reservedSeats = Cookies.get('reservedSeats');
+    const startDestination = localStorage.getItem('startDestination');
+    const endDestination = localStorage.getItem("endDestination");
+    const availableSeats = localStorage.getItem('availableSeats');
+    const busId = localStorage.getItem('busId');
+    const busCapacity = localStorage.getItem('busCapacity');
+    const reservedSeats = localStorage.getItem('reservedSeats');
     const [message, setMessage] = useState('');
     const [nameError, setNameError] = useState('');
     const [addMorePassengers, setAddMorePassengers] = useState(false);
@@ -88,8 +88,6 @@ function BookingPage() {
                 });
             }
 
-            console.log("Request Body: ", JSON.stringify(data));
-
             const response = await axios.post(BOOKING_URL,
                 JSON.stringify(data),
                 {
@@ -97,14 +95,13 @@ function BookingPage() {
                 }
             );
             console.log("RESPONSE: ", JSON.stringify(response?.data));
-            console.log("RESPONSE 2: ", JSON.stringify(response));
 
-            // if (response?.data) {
-            //     setBusData(response.data);
-            // }
+            if (response?.data) {
+                localStorage.setItem('ticketInfo', JSON.stringify(response.data));
+                navigate('/booking/ticket-preview');
+            }
         } catch (err) {
             if (!err?.response) {
-                console.log("ERROR: ", err);
                 setMessage('No Server Response');
             } else if (err.response?.status === 403) {
                 console.log(JSON.stringify(err.response));
@@ -124,11 +121,12 @@ function BookingPage() {
 
     const handleLogout = () => {
         Cookies.remove('token');
+        localStorage.clear();
         navigate("/");
     };
 
     return (
-        <div>
+        <div style={{ background: "#f5f5f5" }}>
             <nav className="navbar navbar-expand" style={{ display: 'block' }}>
                 <div className="navbar-header" style={{ marginLeft: "5rem" }}>
                     <h1>Booking Page</h1>
