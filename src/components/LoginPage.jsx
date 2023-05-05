@@ -55,9 +55,9 @@ function LoginPage() {
             console.log(JSON.stringify(response?.data));
             console.log(JSON.stringify(response));
 
-            // const accessToken = response?.data?.accessToken;
-            // const roles = response?.data?.roles;
-            // setAuth({ user, pwd, roles, accessToken });
+            if (response?.data) {
+                localStorage.setItem('userId', response.data);
+            }
 
             let token = response.headers.get("Authorization");
             if (token !== null && token !== undefined) {

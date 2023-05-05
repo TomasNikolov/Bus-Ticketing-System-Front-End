@@ -9,12 +9,15 @@ const PAYMENT_URL = 'http://localhost:8080/payment';
 
 function PaymentPage() {
     const username = localStorage.getItem('username');
+    const userId = localStorage.getItem('userId');
+    const ticketInfo = JSON.parse(localStorage.getItem('ticketInfo') || '[]');
     const [cardNumber, setCardNumber] = useState('');
     const [cardName, setCardName] = useState('');
     const [expiry, setExpiry] = useState('');
     const [cvc, setCvc] = useState('');
     const [focus, setFocus] = useState('');
     const [message, setMessage] = useState('');
+    const amount = ticketInfo[0].price * ticketInfo.length;
     const navigate = useNavigate();
 
     const handleInputChange = (e) => {
@@ -47,11 +50,11 @@ function PaymentPage() {
                 cardHolder: cardName,
                 expiryDate: expiry,
                 cvv: cvc,
-                amount: '50'
+                amount: amount,
+                userId: userId
             };
 
-            console.log('REQUEST BODY: ', JSON.stringify(data));
-
+            console.log('DATA: ', JSON.stringify(data));
             const response = await axios.post(PAYMENT_URL,
                 JSON.stringify(data),
                 {
@@ -62,7 +65,7 @@ function PaymentPage() {
             console.log("RESPONSE: ", JSON.stringify(response?.data));
 
             if (response?.data) {
-                //TODO: navigate to my bookings page.
+                navigate('/my_bookings');
             }
         } catch (err) {
             if (!err?.response) {
@@ -83,6 +86,10 @@ function PaymentPage() {
         navigate("/home");
     };
 
+    const handleMyBookingsClick = () => {
+        navigate("/my_bookings")
+    };
+
     const handleLogout = () => {
         localStorage.clear();
         navigate("/");
@@ -99,7 +106,7 @@ function PaymentPage() {
                                 <h4> Hi, Welcome <span>{username}</span></h4>
                             </div>
                             <div className="col-3">
-                                <button className='btn anchor'>My Bookings</button>
+                                <button className='btn anchor' onClick={handleMyBookingsClick}>My Bookings</button>
                             </div>
                             <div className="col-2">
                                 <button className='btn anchor' onClick={handleDashboardClick}>Dashboard</button>
@@ -117,17 +124,22 @@ function PaymentPage() {
             <div className="container mt-5">
                 {message && <div className="alert alert-danger mt-2">{message}</div>}
                 <div className="row justify-content-center">
-                    <Cards
-                        number={cardNumber}
-                        expiry={expiry}
-                        cvc={cvc}
-                        name={cardName}
-                        focused={focus}
-                    />
+                    <div className='col-md-4'>
+                        <Cards
+                            number={cardNumber}
+                            expiry={expiry}
+                            cvc={cvc}
+                            name={cardName}
+                            focused={focus}
+                        />
+
+                        <label htmlFor='amount' style={{ paddingTop: "3rem", textAlign: "center" }}><strong style={{ paddingTop: "3rem", textAlign: "center", fontSize: "1.5rem" }}>Total amount to be payed: {amount} $</strong></label>
+                    </div>
+
                     <div className="col-lg-6 col-md-8 col-sm-10">
                         <div className="card">
                             <div className="card-header bg-primary text-white">
-                                <h3 className="mb-0">Payment Details</h3>
+                                <h3 className="mb-0">Card Details</h3>
                             </div>
                             <div className="card-body">
                                 <form onSubmit={handleSubmit}>
@@ -141,7 +153,7 @@ function PaymentPage() {
                                             name="cardNumber"
                                             pattern="\d{4}\d{4}\d{4}\d{4}"
                                             minLength={16}
-                                            maxLength={19}
+                                            maxLength={16}
                                             value={cardNumber}
                                             onChange={handleInputChange}
                                             onFocus={(e) => setFocus(e.target.name)}
@@ -149,7 +161,7 @@ function PaymentPage() {
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="cardName">Name on Card</label>
+                                        <label htmlFor="cardName">Card Holder</label>
                                         <input
                                             type="text"
                                             className="form-control"

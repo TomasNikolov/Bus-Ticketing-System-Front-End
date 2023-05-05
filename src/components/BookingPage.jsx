@@ -3,24 +3,26 @@ import './styles/BookingPage.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Cookies from 'js-cookie';
 
-const BOOKING_URL = 'http://localhost:8080/booking/reserve-ticket';
+const RESERVE_TICKET_URL = 'http://localhost:8080/ticket/reserve';
 
 function BookingPage() {
     const username = localStorage.getItem('username');
-    const [fullName, setFullName] = useState('');
-    const [seats, setSeats] = useState(1);
+    const userId = localStorage.getItem('userId');
     const startDestination = localStorage.getItem('startDestination');
     const endDestination = localStorage.getItem("endDestination");
     const availableSeats = localStorage.getItem('availableSeats');
     const busId = localStorage.getItem('busId');
     const busCapacity = localStorage.getItem('busCapacity');
     const reservedSeats = localStorage.getItem('reservedSeats');
+    const ticketPrice = localStorage.getItem('ticketPrice');
+    const [fullName, setFullName] = useState('');
+    const [seats, setSeats] = useState(1);
     const [message, setMessage] = useState('');
     const [nameError, setNameError] = useState('');
     const [addMorePassengers, setAddMorePassengers] = useState(false);
     const [passengersArr, setPassengersArr] = useState([]);
+    const [totalPrice, setTotalPrice] = useState(ticketPrice);
     const navigate = useNavigate();
 
     const handleNameChange = (event) => {
@@ -36,6 +38,7 @@ function BookingPage() {
 
     const handleSeatsChange = (event) => {
         const seatsCount = event.target.value;
+        setTotalPrice(seatsCount * ticketPrice);
         setSeats(seatsCount);
         if (seatsCount > 1 && seatsCount > passengersArr.length) {
             setAddMorePassengers(true);
@@ -74,7 +77,9 @@ function BookingPage() {
                 passengerName: fullName,
                 busId: busId,
                 busCapacity: busCapacity,
-                reservedTickets: reservedSeats
+                reservedTickets: reservedSeats,
+                userId: userId,
+                price: ticketPrice
             }];
 
             for (let i = 0; i < passengersArr.length; i++) {
@@ -84,11 +89,13 @@ function BookingPage() {
                     passengerName: passengersArr[i].name,
                     busId: busId,
                     busCapacity: busCapacity,
-                    reservedTickets: reservedSeats
+                    reservedTickets: reservedSeats,
+                    userId: userId,
+                    price: ticketPrice
                 });
             }
 
-            const response = await axios.post(BOOKING_URL,
+            const response = await axios.post(RESERVE_TICKET_URL,
                 JSON.stringify(data),
                 {
                     headers: { 'Content-Type': 'application/json' }
@@ -119,8 +126,11 @@ function BookingPage() {
         navigate("/home");
     };
 
+    const handleMyBookingsClick = () => {
+        navigate("/my_bookings")
+    };
+
     const handleLogout = () => {
-        Cookies.remove('token');
         localStorage.clear();
         navigate("/");
     };
@@ -136,7 +146,7 @@ function BookingPage() {
                                 <h4> Hi, Welcome <span>{username}</span></h4>
                             </div>
                             <div className="col-3">
-                                <button className='btn anchor'>My Bookings</button>
+                                <button className='btn anchor' onClick={handleMyBookingsClick}>My Bookings</button>
                             </div>
                             <div className="col-2">
                                 <button className='btn anchor' onClick={handleDashboardClick}>Dashboard</button>
@@ -166,6 +176,9 @@ function BookingPage() {
                             <div className="form-group">
                                 <label htmlFor="seats">Number of Seats:</label>
                                 <input type="number" className="form-control" id="seats" min="1" max={availableSeats} value={seats} onChange={handleSeatsChange} autoFocus required />
+                            </div>
+                            <div style={{paddingBottom: "1.5rem", paddingTop: "1rem"}}>
+                                <b><label style={{fontSize: "18px"}}>Total Price: <span>{totalPrice} $</span></label></b>
                             </div>
                             {addMorePassengers === true &&
                                 passengersArr.map((passenger) => (

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
+import axios from "axios";
+
+const DELETE_TICKET_URL = 'http://localhost:8080/ticket/delete';
 
 function TicketPreview() {
     const username = localStorage.getItem('username');
@@ -12,26 +14,57 @@ function TicketPreview() {
     const departureTime = localStorage.getItem('departureTime');
     const arrivalTime = localStorage.getItem('arrivalTime');
     const ticketInfo = JSON.parse(localStorage.getItem('ticketInfo') || '[]');
+    const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     const handlePayClick = () => {
         navigate('/booking/payment');
     };
 
-    const handleDenyClick = () => {
-        console.log('HANDLE DENY');
-    };
+    const handleDenyClick = async () => {
+        try {
+            const data = [];
+            ticketInfo.forEach((ticket) => {
+                data.push(ticket.id)
+            });
 
-    const handleEditClick = () => {
-        console.log('HANDLE EDIT');
+            console.log('DATA: ', JSON.stringify(data));
+            const response = await axios.delete(DELETE_TICKET_URL,
+                {
+                    data: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+
+            console.log("RESPONSE: ", JSON.stringify(response));
+
+            if (response?.status === 204) {
+                navigate('/home');
+            }
+        } catch (err) {
+            if (!err?.response) {
+                setMessage('No Server Response');
+            } else if (err.response?.status === 403) {
+                console.log(JSON.stringify(err.response));
+                setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+            } else if (err.response?.status === 404) {
+                console.log(JSON.stringify(err.response?.data?.message[0]));
+                setMessage(err.response?.data?.message[0]);
+            } else {
+                setMessage("Internal server error");
+            }
+        }
     };
 
     const handleDashboardClick = () => {
         navigate("/home");
     };
 
+    const handleMyBookingsClick = () => {
+        navigate("/my_bookings")
+    };
+
     const handleLogout = () => {
-        Cookies.remove('token');
         localStorage.clear();
         navigate("/");
     };
@@ -47,7 +80,7 @@ function TicketPreview() {
                                 <h4> Hi, Welcome <span>{username}</span></h4>
                             </div>
                             <div className="col-3">
-                                <button className='btn anchor'>My Bookings</button>
+                                <button className='btn anchor' onClick={handleMyBookingsClick}>My Bookings</button>
                             </div>
                             <div className="col-2">
                                 <button className='btn anchor' onClick={handleDashboardClick}>Dashboard</button>
@@ -63,8 +96,8 @@ function TicketPreview() {
             <br /><br />
 
             <div className="container">
+                {message && <div className="alert alert-danger mt-2">{message}</div>}
                 <h1 style={{ textAlign: "center" }}>Ticket Preview</h1>
-
                 {ticketInfo.length > 0 &&
                     ticketInfo.map((ticket) => (
                         <div className="row" key={ticket.id} style={{ background: "#fff", padding: "20px", marginBottom: "20px", borderRadius: "10px" }}>
@@ -77,6 +110,7 @@ function TicketPreview() {
                                     <li><strong>Departure Time:</strong> {departureTime}</li>
                                     <li><strong>Arrival Time:</strong> {arrivalTime}</li>
                                     <li><strong>Seat Number:</strong> {ticket.seatNumber}</li>
+                                    <li><strong>Price:</strong> {ticket.price} $</li>
                                 </ul>
                             </div>
                             <div className="col-md-6">
@@ -95,9 +129,8 @@ function TicketPreview() {
 
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
                     <button className="btn btn-danger" style={{ borderRadius: "10px", fontSize: "18px", width: "18rem" }} onClick={handleDenyClick}>Deny Booking</button>
-                    <div style={{width: "5%"}}></div>
-                    <button className="btn-primary" style={{ borderRadius: "10px", fontSize: "18px", width: "18rem" }} onClick={handleEditClick}>Edit Booking</button>
-                    <div style={{width: "5%"}}></div>
+                    <div style={{ width: "5%" }}></div>
+                    <div style={{ width: "5%" }}></div>
                     <button className="btn btn-success" style={{ borderRadius: "10px", fontSize: "18px", width: "18rem" }} onClick={handlePayClick}>Confirm and Pay</button>
                 </div>
             </div>

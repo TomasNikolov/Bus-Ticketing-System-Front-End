@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Table } from 'react-bootstrap';
-import Cookies from 'js-cookie';
 
 function DashboardPage() {
     const username = localStorage.getItem("username");
@@ -36,9 +35,11 @@ function DashboardPage() {
         setMessage('');
     };
 
+    const handleMyBookingsClick = () => {
+        navigate("/my_bookings")
+    };
 
     const handleLogout = () => {
-        Cookies.remove('token');
         localStorage.clear();
         navigate("/");
     };
@@ -101,9 +102,11 @@ function DashboardPage() {
         localStorage.setItem('reservationDate', bus.departureDate);
         localStorage.setItem('busCapacity', bus.capacity);
         localStorage.setItem('availableSeats', bus.availableSeats);
+        localStorage.setItem('reservedSeats', bus.reservedSeats);
         localStorage.setItem('departureTime', bus.departureTime);
         localStorage.setItem('arrivalTime', bus.arrivalTime);
         localStorage.setItem('departureDate', bus.departureDate);
+        localStorage.setItem('ticketPrice', bus.ticketPrice);
 
         navigate("/booking")
     };
@@ -119,7 +122,7 @@ function DashboardPage() {
                                 <h4> Hi, Welcome <span>{username}</span></h4>
                             </div>
                             <div className="col-3">
-                                <button className='btn anchor'>My Bookings</button>
+                                <button className='btn anchor' onClick={handleMyBookingsClick}>My Bookings</button>
                             </div>
                             <div className="col-1">
                                 <button className="btn anchor" onClick={handleLogout}> <i className="fa fa-arrow-circle-o-left"></i>&nbsp;Logout</button>
@@ -170,9 +173,10 @@ function DashboardPage() {
                             <tr>
                                 <th>From</th>
                                 <th>To</th>
-                                <th>Time</th>
+                                <th>Departure Time</th>
+                                <th>Arrival Time</th>
                                 <th>Bus Name</th>
-                                <th>Price</th>
+                                <th>Ticket Price</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -181,9 +185,10 @@ function DashboardPage() {
                                 <tr key={bus.id}>
                                     <td type="text">{bus.startDestination}</td>
                                     <td type="text">{bus.endDestination}</td>
-                                    <td type="datetime">{bus.dedepartureTime}</td>
+                                    <td type="time">{bus.departureTime}</td>
+                                    <td type="time">{bus.arrivalTime}</td>
                                     <td type="text">{bus.name}</td>
-                                    <td type="number">{bus.distance}</td>
+                                    <td type="number">{bus.ticketPrice}</td>
                                     <td><button className="btn btn-primary" onClick={() => handleBooking(bus)}>Book</button></td>
                                 </tr>
                             ))}
