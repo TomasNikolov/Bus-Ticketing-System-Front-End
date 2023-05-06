@@ -5,16 +5,23 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const CONFIRMATION_URL = 'http://localhost:3000/confirm-account?token=';
 const REGISTER_URL = 'http://localhost:8080/user/register';
 
 function RegisterPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [usernameError, setUsernameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [message, setMessage] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [firstNameError, setFirstNameError] = useState('');
+    const [lastNameError, setLastNameError] = useState('');
     const navigate = useNavigate();
     const minUsernameLength = 6;
     const minPasswordLength = 8;
@@ -32,6 +39,21 @@ function RegisterPage() {
     const handleConfirmPasswordChange = (event) => {
         setConfirmPassword(event.target.value);
         setConfirmPasswordError('');
+    };
+
+    const handleEmailChange = (event) => {
+        setEmail(event.target.value);
+        setEmailError('');
+    };
+
+    const handleFirtstNameChange = (event) => {
+        setFirstName(event.target.value);
+        setFirstNameError('');
+    };
+
+    const handleLastNameChange = (event) => {
+        setLastName(event.target.value);
+        setLastNameError('');
     };
 
     const handleSubmit = async (e) => {
@@ -54,8 +76,14 @@ function RegisterPage() {
 
         const data = {
             username: username,
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
             password: password,
+            confirmationUrl: CONFIRMATION_URL
         };
+
+        console.log("DATA: ", JSON.stringify(data));
 
         try {
             const response = await axios.post(REGISTER_URL,
@@ -64,13 +92,17 @@ function RegisterPage() {
                     headers: { 'Content-Type': 'application/json' }
                 }
             );
-            console.log(JSON.stringify(response?.data));
+            
             console.log(JSON.stringify(response));
 
             setMessage("Registration successful!");
             setUsername("");
             setPassword("");
-            navigate("/");
+            setEmail("");
+            setFirstName("");
+            setLastName("");
+            setConfirmPassword("");
+            navigate("/confirmation");
         } catch (err) {
             if (!err?.response) {
                 setMessage('No Server Response');
@@ -96,6 +128,21 @@ function RegisterPage() {
                             <label htmlFor="username">Username:</label>
                             <input type="text" id="username" className="form-control" value={username} autoFocus required onChange={handleUsernameChange} />
                             {usernameError && <div className="alert alert-danger mt-2">{usernameError}</div>}
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="email">Email:</label>
+                            <input type="email" id="email" className="form-control" value={email} autoFocus required onChange={handleEmailChange} />
+                            {emailError && <div className="alert alert-danger mt-2">{emailError}</div>}
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="firstName">First Name :</label>
+                            <input type="text" id="firstName" className="form-control" value={firstName} autoFocus required onChange={handleFirtstNameChange} />
+                            {firstNameError && <div className="alert alert-danger mt-2">{firstNameError}</div>}
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="lastName">Last Name:</label>
+                            <input type="text" id="lastName" className="form-control" value={lastName} autoFocus required onChange={handleLastNameChange} />
+                            {lastNameError && <div className="alert alert-danger mt-2">{lastNameError}</div>}
                         </div>
                         <div className="form-group">
                             <label htmlFor="password">Password:</label>

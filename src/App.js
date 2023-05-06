@@ -7,6 +7,8 @@ import BookingPage from './components/BookingPage';
 import TicketPreview from './components/TicketPreview';
 import PaymentPage from './components/PaymentPage';
 import MyBookingsPage from './components/MyBookingsPage';
+import EmailConfirmationPage from './components/EmailConfirmationPage';
+import ConfirmationPage from './components/ConfirmationPage';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path='/booking/ticket-preview' element={<TicketPreview />} />
           <Route path='/booking/payment' element={<PaymentPage />} />
           <Route path='/my_bookings' element={<MyBookingsPage />} />
+          <Route path='/confirmation' element={<EmailConfirmationPage />} />
+          <Route path='/confirm-account' element={<ConfirmationPage />} />
         </Routes>
       </Router>
     </div>
