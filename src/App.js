@@ -9,6 +9,10 @@ import PaymentPage from './components/PaymentPage';
 import MyBookingsPage from './components/MyBookingsPage';
 import EmailConfirmationPage from './components/EmailConfirmationPage';
 import ConfirmationPage from './components/ConfirmationPage';
+import AdminDashboard from './components/AdminDashboard';
+import BusManagementPage from './components/BusManagmentPage';
+import UserManagementPage from './components/UserManagmentPage';
+import BookingManagementPage from './components/BookingManagementPage';
 
 function App() {
   return (
@@ -17,6 +21,10 @@ function App() {
         <Routes>
           <Route path='/' element={<LoginPage />} />
           <Route path='/register' element={<RegisterPage />} />
+          <Route path='/admin/home' element={<AdminDashboard />} />
+          <Route path='/admin/buses' element={<BusManagementPage />} />
+          <Route path='/admin/users' element={<UserManagementPage />} />
+          <Route path='/admin/bookings' element={<BookingManagementPage />} />
           <Route path='/home' element={<DashboardPage />} />
           <Route path='/booking' element={<BookingPage />} />
           <Route path='/booking/ticket-preview' element={<TicketPreview />} />

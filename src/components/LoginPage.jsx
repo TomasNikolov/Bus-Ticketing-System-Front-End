@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './styles/images/bus-logo.png';
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
 import axios from "axios";
 
 const LOGIN_URL = 'http://localhost:8080/authenticate';
@@ -60,9 +59,11 @@ function LoginPage() {
             }
 
             let token = response.headers.get("Authorization");
+            console.log('TOKEN: ', token);
             if (token !== null && token !== undefined) {
-                Cookies.set('token', token, { expires: 1 / 24 });
-                //TODO: Redirect to admin home page                
+                localStorage.setItem('token', token)
+                navigate('/admin/home');
+                return;
             }
 
             setMessage("Login successful!");
