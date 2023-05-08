@@ -2,18 +2,23 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Table } from 'react-bootstrap';
+import { Table, Navbar, Nav } from 'react-bootstrap';
 import InfoMessage from './InfoMessage';
+import { Link } from 'react-router-dom';
+import { BeatLoader } from "react-spinners";
 
 function MyBookingsPage() {
-    const username = localStorage.getItem('username');
     const userId = localStorage.getItem('userId');
     const [bookings, setBookings] = useState([]);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+    const [disableButton, setDisableButton] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchBookings = async () => {
+            setLoading(true);
+
             try {
                 const response = await axios.get(`http://localhost:8080/booking?userId=${userId}`);
 
@@ -21,18 +26,23 @@ function MyBookingsPage() {
 
                 if (response?.data) {
                     setBookings(response.data);
+                    setLoading(false);
                 }
             } catch (err) {
                 if (!err?.response) {
                     setMessage('No Server Response');
+                    setLoading(false);
                 } else if (err.response?.status === 403) {
                     console.log(JSON.stringify(err.response));
                     setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                    setLoading(false);
                 } else if (err.response?.status === 404) {
                     console.log(JSON.stringify(err.response?.data?.message[0]));
                     setMessage(err.response?.data?.message[0]);
+                    setLoading(false);
                 } else {
                     setMessage("Internal server error");
+                    setLoading(false);
                 }
             }
         };
@@ -40,6 +50,9 @@ function MyBookingsPage() {
     }, [userId]);
 
     const handleCancelClick = async (booking) => {
+        setLoading(true);
+        setDisableButton(true);
+
         try {
             const response = await axios.delete(`http://localhost:8080/booking?id=${booking.id}`,
                 {
@@ -51,23 +64,36 @@ function MyBookingsPage() {
 
             if (response?.status === 204) {
                 window.location.reload();
+                setLoading(false);
+                setDisableButton(false);
             }
         } catch (err) {
             if (!err?.response) {
                 setMessage('No Server Response');
+                setLoading(false);
+                setDisableButton(false);
             } else if (err.response?.status === 403) {
                 console.log(JSON.stringify(err.response));
                 setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
+                setDisableButton(false);
             } else if (err.response?.status === 404) {
                 console.log(JSON.stringify(err.response?.data?.message[0]));
                 setMessage(err.response?.data?.message[0]);
+                setLoading(false);
+                setDisableButton(false);
             } else {
                 setMessage("Internal server error");
+                setLoading(false);
+                setDisableButton(false);
             }
         }
     };
 
     const handleGenerateClick = async (booking) => {
+        setLoading(true);
+        setDisableButton(true);
+
         try {
             const response = await axios.get(`http://localhost:8080/ticket/send?ticketId=${booking.ticketId}`,
                 {
@@ -79,24 +105,30 @@ function MyBookingsPage() {
 
             if (response?.status === 200) {
                 window.location.reload();
+                setLoading(false);
+                setDisableButton(false);
             }
         } catch (err) {
             if (!err?.response) {
                 setMessage('No Server Response');
+                setLoading(false);
+                setDisableButton(false);
             } else if (err.response?.status === 403) {
                 console.log(JSON.stringify(err.response));
                 setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
+                setDisableButton(false);
             } else if (err.response?.status === 404) {
                 console.log(JSON.stringify(err.response?.data?.message[0]));
                 setMessage(err.response?.data?.message[0]);
+                setLoading(false);
+                setDisableButton(false);
             } else {
                 setMessage("Internal server error");
+                setLoading(false);
+                setDisableButton(false);
             }
         }
-    };
-
-    const handleDashboardClick = () => {
-        navigate("/home");
     };
 
     const handleLogout = () => {
@@ -106,28 +138,33 @@ function MyBookingsPage() {
 
     return (
         <div style={{ background: "#f5f5f5" }}>
-            <nav className="navbar navbar-expand" style={{ display: 'block' }}>
-                <div className="navbar-header" style={{ marginLeft: "5rem" }}>
-                    <h1>My Bookings Page</h1>
-                    <div className="container-fluid" style={{ display: 'block' }}>
-                        <div className="row">
-                            <div className="col-5">
-                                <h4> Hi, Welcome <span>{username}</span></h4>
-                            </div>
-                            <div className="col-2">
-                                <button className='btn anchor' onClick={handleDashboardClick}>Dashboard</button>
-                            </div>
-                            <div className="col-1">
-                                <button className="btn anchor" onClick={handleLogout}> <i className="fa fa-arrow-circle-o-left"></i>&nbsp;Logout</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Navbar bg="dark" variant="dark" expand="lg">
+                <Navbar.Brand as={Link} to="/home">
+                    Bus Ticketing System
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="ml-auto">
+                        <Nav.Link as={Link} to="/home">
+                            Home
+                        </Nav.Link>
+                        <Nav.Link as={Link} to="/find_bus">
+                            Find a Bus
+                        </Nav.Link>
+                        <Nav.Link as={Link} to="/my_bookings">
+                            My Bookings
+                        </Nav.Link>
+                        <Nav.Link onClick={handleLogout}>
+                            Logout
+                        </Nav.Link>
+                    </Nav>
+                </Navbar.Collapse>
+            </Navbar>
 
             <br /><br />
 
             <div className="container">
+                <h1 style={{ textAlign: "center", paddingBottom: "2rem" }}>My Bookings</h1>
                 {message && <div className="alert alert-danger mt-2">{message}</div>}
                 {bookings.length === 0 ? <InfoMessage /> : (
                     <Table striped bordered hover>
@@ -158,16 +195,22 @@ function MyBookingsPage() {
                                     <td type="text">{booking.busName}</td>
                                     <td type="currency">{booking.price}</td>
                                     <td type="text">{booking.status}</td>
-                                    <td><button className="btn btn-danger" style={{ borderRadius: "10px" }} onClick={() => handleCancelClick(booking)}>Cancel Booking</button></td>
-                                    <td><button className="btn btn-primary" style={{ borderRadius: "10px" }} onClick={() => handleGenerateClick(booking)}>Generate Ticket</button></td>
+                                    <td><button className="btn btn-danger" disabled={disableButton} style={{ borderRadius: "10px" }} onClick={() => handleCancelClick(booking)}>Cancel Booking</button></td>
+                                    <td><button className="btn btn-primary" disabled={disableButton} style={{ borderRadius: "10px" }} onClick={() => handleGenerateClick(booking)}>Generate Ticket</button></td>
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
                 )}
+
+                {loading && (
+                    <div className="text-center">
+                        <BeatLoader color={"#123abc"} loading={loading} />
+                    </div>
+                )}
             </div>
 
-            <footer className="bg-dark text-white py-3" style={{ marginTop: "10rem", height: "10rem" }}>
+            <footer className="bg-dark text-white py-3" style={{ marginTop: "15rem", height: "10rem" }}>
                 <div className="container">
                     <div className="row">
                         <div className="col-md-6">

@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 import 'react-credit-cards-2/dist/es/styles-compiled.css';
 import Cards from 'react-credit-cards-2';
 import axios from "axios";
+import { Link } from 'react-router-dom';
+import { Navbar, Nav } from 'react-bootstrap';
 
 const PAYMENT_URL = 'http://localhost:8080/payment';
 
 function PaymentPage() {
-    const username = localStorage.getItem('username');
     const userId = localStorage.getItem('userId');
     const ticketInfo = JSON.parse(localStorage.getItem('ticketInfo') || '[]');
     const [cardNumber, setCardNumber] = useState('');
@@ -82,14 +83,6 @@ function PaymentPage() {
         }
     };
 
-    const handleDashboardClick = () => {
-        navigate("/home");
-    };
-
-    const handleMyBookingsClick = () => {
-        navigate("/my_bookings")
-    };
-
     const handleLogout = () => {
         localStorage.clear();
         navigate("/");
@@ -97,27 +90,28 @@ function PaymentPage() {
 
     return (
         <div style={{ background: "#f5f5f5" }}>
-            <nav className="navbar navbar-expand" style={{ display: 'block' }}>
-                <div className="navbar-header" style={{ marginLeft: "5rem" }}>
-                    <h1>Payment Page</h1>
-                    <div className="container-fluid" style={{ display: 'block' }}>
-                        <div className="row">
-                            <div className="col-5">
-                                <h4> Hi, Welcome <span>{username}</span></h4>
-                            </div>
-                            <div className="col-3">
-                                <button className='btn anchor' onClick={handleMyBookingsClick}>My Bookings</button>
-                            </div>
-                            <div className="col-2">
-                                <button className='btn anchor' onClick={handleDashboardClick}>Dashboard</button>
-                            </div>
-                            <div className="col-1">
-                                <button className="btn anchor" onClick={handleLogout}> <i className="fa fa-arrow-circle-o-left"></i>&nbsp;Logout</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Navbar bg="dark" variant="dark" expand="lg">
+                <Navbar.Brand as={Link} to="/home">
+                    Bus Ticketing System
+                </Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="ml-auto">
+                        <Nav.Link as={Link} to="/home">
+                            Home
+                        </Nav.Link>
+                        <Nav.Link as={Link} to="/find_bus">
+                            Find a Bus
+                        </Nav.Link>
+                        <Nav.Link as={Link} to="/my_bookings">
+                            My Bookings
+                        </Nav.Link>
+                        <Nav.Link onClick={handleLogout}>
+                            Logout
+                        </Nav.Link>
+                    </Nav>
+                </Navbar.Collapse>
+            </Navbar>
 
             <br /><br />
 

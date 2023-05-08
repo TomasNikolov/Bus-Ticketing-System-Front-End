@@ -1,19 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Table, Button, Modal, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { BeatLoader } from "react-spinners";
 
 function UserManagementPage() {
     const navigate = useNavigate();
-    const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [users, setUsers] = useState([{ id: 1, name: "User 1", email: "user1@example.com", role: "admin", }, { id: 2, name: "User 2", email: "user2@example.com", role: "user", }, { id: 3, name: "User 3", email: "user3@example.com", role: "user", },]);
+    const [users, setUsers] = useState([]);
+    const [message, setMessage] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleAddClose = () => setShowAddModal(false);
-    const handleAddShow = () => setShowAddModal(true);
+    useEffect(() => {
+        const fetchUsers = async () => {
+            setMessage('');
+            setSuccessMessage('');
+            setLoading(true);
+            try {
+                const response = await axios.get("http://localhost:8080/admin/users",
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('token')
+                        }
+                    }
+                );
+
+                console.log("RESPONSE: ", JSON.stringify(response?.data));
+
+                if (response?.data) {
+                    setUsers(response.data);
+                    setLoading(false);
+                }
+            } catch (err) {
+                if (!err?.response) {
+                    setMessage('No Server Response');
+                    setLoading(false);
+                } else if (err.response?.status === 403) {
+                    console.log(JSON.stringify(err.response));
+                    setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                    setLoading(false);
+                } else if (err.response?.status === 404) {
+                    console.log(JSON.stringify(err.response?.data?.message[0]));
+                    setMessage(err.response?.data?.message[0]);
+                    setLoading(false);
+                } else {
+                    setMessage("Internal server error");
+                    setLoading(false);
+                }
+            }
+        };
+        fetchUsers();
+    }, []);
 
     const handleEditClose = () => setShowEditModal(false);
     const handleEditShow = (user) => {
@@ -21,37 +64,103 @@ function UserManagementPage() {
         setShowEditModal(true);
     };
 
-    const handleAddSubmit = (event) => {
+    const handleEditSubmit = async (event) => {
+        setLoading(true);
         event.preventDefault();
-        const formData = new FormData(event.target);
-        const newUser = {
-            id: users.length + 1,
-            name: formData.get("name"),
-            email: formData.get("email"),
-            role: formData.get("role"),
-        };
-        setUsers([...users, newUser]);
-        setShowAddModal(false);
-    };
-
-    const handleEditSubmit = (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
+        const formData = event.target.elements;
         const updatedUser = {
-            ...selectedUser,
-            name: formData.get("name"),
-            email: formData.get("email"),
-            role: formData.get("role"),
+            id: selectedUser.id,
+            username: formData.username.value,
+            firstName: formData.firstName.value,
+            lastName: formData.lastName.value,
+            enabled: formData.enabled.value,
+            role: formData.role.value
         };
-        const index = users.findIndex((user) => user.id === selectedUser.id);
-        setUsers([...users.slice(0, index), updatedUser, ...users.slice(index + 1)]);
-        setSelectedUser(null);
-        setShowEditModal(false);
+
+        console.log('UPDATED USER: ', JSON.stringify(updatedUser));
+
+        try {
+            const response = await axios.put("http://localhost:8080/admin/users",
+                JSON.stringify(updatedUser),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    }
+                }
+            );
+
+            console.log("RESPONSE: ", JSON.stringify(response));
+
+            if (response?.status === 200) {
+                setSuccessMessage('User has been successfully updated.');
+                setTimeout(() => { }, 5000);
+                setSelectedUser(null);
+                setShowEditModal(false);
+                window.location.reload();
+                setLoading(false);
+            }
+        } catch (err) {
+            if (!err?.response) {
+                setMessage('No Server Response');
+                setLoading(false);
+            } else if (err.response?.status === 403) {
+                console.log(JSON.stringify(err.response));
+                setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
+            } else if (err.response?.status === 404) {
+                console.log(JSON.stringify(err.response?.data?.message[0]));
+                setMessage(err.response?.data?.message[0]);
+                setLoading(false);
+            } else {
+                setMessage("Internal server error");
+                setLoading(false);
+            }
+        }
     };
 
-    const handleDelete = (user) => {
-        const index = users.findIndex((u) => u.id === user.id);
-        setUsers([...users.slice(0, index), ...users.slice(index + 1)]);
+    const handleDelete = async (user) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+        if (!confirmDelete) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response = await axios.delete(`http://localhost:8080/admin/users?id=${user.id}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    }
+                }
+            );
+
+            console.log("RESPONSE: ", JSON.stringify(response));
+
+            if (response?.status === 204) {
+                setSuccessMessage('User has been successfully deleted.');
+                setTimeout(() => { }, 5000);
+                window.location.reload();
+                setLoading(false);
+            }
+        } catch (err) {
+            if (!err?.response) {
+                setMessage('No Server Response');
+                setLoading(false);
+            } else if (err.response?.status === 403) {
+                console.log(JSON.stringify(err.response));
+                setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
+            } else if (err.response?.status === 404) {
+                console.log(JSON.stringify(err.response?.data?.message[0]));
+                setMessage(err.response?.data?.message[0]);
+                setLoading(false);
+            } else {
+                setMessage("Internal server error");
+                setLoading(false);
+            }
+        }
     };
 
     const handleLogout = () => {
@@ -90,88 +199,69 @@ function UserManagementPage() {
             </Navbar>
 
             <Container className="mt-4" style={{ paddingTop: "2rem" }}>
+                {message && <div className="alert alert-danger mt-2">{message}</div>}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h1 style={{ width: "40%" }}>User Management</h1>
-                    <div style={{ width: "20%" }}></div>
-                    <Button variant="primary" style={{ width: "10%" }} onClick={handleAddShow}>
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                        Add User
-                    </Button>
+                    <h1>User Management</h1>
                 </div>
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.id}</td>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>
-                                    <div className="d-flex">
-                                        <div style={{ width: "5%" }}></div>
-                                        <Button
-                                            variant="info"
-                                            size="sm"
-                                            className="mr-2 ml-2"
-                                            onClick={() => handleEditShow(user)}
-                                        >
-                                            <FontAwesomeIcon icon={faEdit} />
-                                        </Button>
-                                        <div style={{ width: "10%" }}></div>
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            onClick={() => handleDelete(user)}
-                                        >
-                                            <FontAwesomeIcon icon={faTrashAlt} />
-                                        </Button>
-                                    </div>
-                                </td>
+                {users.length === 0 ? (
+                    <div className="alert alert-info">
+                        <p>Currently, there are no users registered in the system. Please check back later.</p>
+                    </div>) : (
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Enabled</th>
+                                <th>Role</th>
+                                <th>Action(Edit/Delete)</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                        </thead>
+                        <tbody>
+                            {users.map((user) => (
+                                <tr key={user.id}>
+                                    <td type="number">{user.id}</td>
+                                    <td type="text">{user.username}</td>
+                                    <td type="email">{user.email}</td>
+                                    <td type="text">{user.firstName}</td>
+                                    <td type="text">{user.lastName}</td>
+                                    <td type="text">{user.enabled.toString()}</td>
+                                    <td type="text">{user.role}</td>
+                                    <td>
+                                        <div className="d-flex">
+                                            <div style={{ width: "5%" }}></div>
+                                            <Button
+                                                variant="info"
+                                                size="sm"
+                                                className="mr-2 ml-2"
+                                                onClick={() => handleEditShow(user)}
+                                            >
+                                                <FontAwesomeIcon icon={faEdit} />
+                                            </Button>
+                                            <div style={{ width: "10%" }}></div>
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => handleDelete(user)}
+                                            >
+                                                <FontAwesomeIcon icon={faTrashAlt} />
+                                            </Button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                )}
 
-                <Modal show={showAddModal} onHide={handleAddClose}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Add User</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form onSubmit={handleAddSubmit}>
-                            <Form.Group controlId="name" className="mb-3">
-                                <Form.Label>Name</Form.Label>
-                                <Form.Control type="text" placeholder="Enter name" required />
-                            </Form.Group>
-                            <Form.Group controlId="type" className="mb-3">
-                                <Form.Label>Type</Form.Label>
-                                <Form.Control as="select" required>
-                                    <option>AC</option>
-                                    <option>Non-AC</option>
-                                </Form.Control>
-                            </Form.Group>
-                            <Form.Group controlId="seats" className="mb-3">
-                                <Form.Label>No. of Seats</Form.Label>
-                                <Form.Control type="number" placeholder="Enter no. of seats" required />
-                            </Form.Group>
-                            <Form.Group controlId="fare" className="mb-3">
-                                <Form.Label>Fare</Form.Label>
-                                <Form.Control type="number" placeholder="Enter fare" required />
-                            </Form.Group>
-                            <Button variant="primary" type="submit">
-                                Add
-                            </Button>
-                        </Form>
-                    </Modal.Body>
-                </Modal>
+                {loading && (
+                    <div className="text-center">
+                        <BeatLoader color={"#123abc"} loading={loading} />
+                    </div>
+                )}
 
                 {selectedUser && (
                     <Modal show={showEditModal} onHide={handleEditClose}>
@@ -179,25 +269,33 @@ function UserManagementPage() {
                             <Modal.Title>Edit User</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
+                            {successMessage && <div className="alert alert-success mt-2">{successMessage}</div>}
                             <Form onSubmit={handleEditSubmit}>
-                                <Form.Group controlId="name" className="mb-3">
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter name" defaultValue={selectedUser.name} required />
+                                <Form.Group controlId="username" className="mb-3">
+                                    <Form.Label>Username</Form.Label>
+                                    <Form.Control type="text" placeholder="Enter username" defaultValue={selectedUser.username} required />
                                 </Form.Group>
-                                <Form.Group controlId="type" className="mb-3">
-                                    <Form.Label>Type</Form.Label>
-                                    <Form.Control as="select" defaultValue={selectedUser.type} required>
-                                        <option>AC</option>
-                                        <option>Non-AC</option>
+                                <Form.Group controlId="firstName" className="mb-3">
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control type="text" placeholder="Enter first name" defaultValue={selectedUser.firstName} required />
+                                </Form.Group>
+                                <Form.Group controlId="lastName" className="mb-3">
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control type="text" placeholder="Enter last name" defaultValue={selectedUser.lastName} required />
+                                </Form.Group>
+                                <Form.Group controlId="enabled" className="mb-3">
+                                    <Form.Label>Enabled</Form.Label>
+                                    <Form.Control as="select" defaultValue="True" required>
+                                        <option>True</option>
+                                        <option>False</option>
                                     </Form.Control>
                                 </Form.Group>
-                                <Form.Group controlId="seats" className="mb-3">
-                                    <Form.Label>No. of Seats</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter no. of seats" defaultValue={selectedUser.seats} required />
-                                </Form.Group>
-                                <Form.Group controlId="fare" className="mb-3">
-                                    <Form.Label>Fare</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter fare" defaultValue={selectedUser.fare} required />
+                                <Form.Group controlId="role" className="mb-3">
+                                    <Form.Label>Role</Form.Label>
+                                    <Form.Control as="select" defaultValue={selectedUser.role} required>
+                                        <option>USER</option>
+                                        <option>ADMIN</option>
+                                    </Form.Control>
                                 </Form.Group>
                                 <Button variant="primary" type="submit">
                                     Update
@@ -208,7 +306,7 @@ function UserManagementPage() {
                 )}
             </Container>
 
-            <footer className="bg-dark text-white py-3" style={{ marginTop: "10rem", height: "10rem" }}>
+            <footer className="bg-dark text-white py-3" style={{ marginTop: "15rem", height: "10rem" }}>
                 <div className="container">
                     <div className="row">
                         <div className="col-md-6">

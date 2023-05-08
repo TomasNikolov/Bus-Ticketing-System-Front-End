@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BeatLoader } from "react-spinners";
 
 function BusManagementPage() {
     const navigate = useNavigate();
@@ -14,11 +15,13 @@ function BusManagementPage() {
     const [buses, setBuses] = useState([]);
     const [message, setMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchBuses = async () => {
             setMessage('');
             setSuccessMessage('');
+            setLoading(true);
             try {
                 const response = await axios.get("http://localhost:8080/admin/buses",
                     {
@@ -33,18 +36,23 @@ function BusManagementPage() {
 
                 if (response?.data) {
                     setBuses(response.data);
+                    setLoading(false);
                 }
             } catch (err) {
                 if (!err?.response) {
                     setMessage('No Server Response');
+                    setLoading(false);
                 } else if (err.response?.status === 403) {
                     console.log(JSON.stringify(err.response));
                     setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                    setLoading(false);
                 } else if (err.response?.status === 404) {
                     console.log(JSON.stringify(err.response?.data?.message[0]));
                     setMessage(err.response?.data?.message[0]);
+                    setLoading(false);
                 } else {
                     setMessage("Internal server error");
+                    setLoading(false);
                 }
             }
         };
@@ -61,6 +69,7 @@ function BusManagementPage() {
     };
 
     const handleAddSubmit = async (event) => {
+        setLoading(true);
         event.preventDefault();
         const formData = event.target.elements;
         const newBus = {
@@ -92,6 +101,7 @@ function BusManagementPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 201) {
+                setLoading(false);
                 setSuccessMessage('The bus has been successfully created.');
                 setTimeout(() => console.log(""), 5000);
                 setShowAddModal(false);
@@ -100,19 +110,24 @@ function BusManagementPage() {
         } catch (err) {
             if (!err?.response) {
                 setMessage('No Server Response');
+                setLoading(false);
             } else if (err.response?.status === 403) {
                 console.log(JSON.stringify(err.response));
                 setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
             } else if (err.response?.status === 404) {
                 console.log(JSON.stringify(err.response?.data?.message[0]));
                 setMessage(err.response?.data?.message[0]);
+                setLoading(false);
             } else {
                 setMessage("Internal server error");
+                setLoading(false);
             }
         }
     };
 
     const handleEditSubmit = async (event) => {
+        setLoading(true);
         event.preventDefault();
         const formData = event.target.elements;
         const updatedBus = {
@@ -152,18 +167,23 @@ function BusManagementPage() {
                 setSelectedBus(null);
                 setShowEditModal(false);
                 window.location.reload();
+                setLoading(false);
             }
         } catch (err) {
             if (!err?.response) {
                 setMessage('No Server Response');
+                setLoading(false);
             } else if (err.response?.status === 403) {
                 console.log(JSON.stringify(err.response));
                 setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
             } else if (err.response?.status === 404) {
                 console.log(JSON.stringify(err.response?.data?.message[0]));
                 setMessage(err.response?.data?.message[0]);
+                setLoading(false);
             } else {
                 setMessage("Internal server error");
+                setLoading(false);
             }
         }
     };
@@ -174,6 +194,7 @@ function BusManagementPage() {
             return;
         }
 
+        setLoading(true);
         try {
             const response = await axios.delete(`http://localhost:8080/admin/buses?id=${bus.id}`,
                 {
@@ -190,18 +211,23 @@ function BusManagementPage() {
                 setSuccessMessage('The bus has been successfully deleted.');
                 setTimeout(() => { }, 5000);
                 window.location.reload();
+                setLoading(false);
             }
         } catch (err) {
             if (!err?.response) {
                 setMessage('No Server Response');
+                setLoading(false);
             } else if (err.response?.status === 403) {
                 console.log(JSON.stringify(err.response));
                 setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
             } else if (err.response?.status === 404) {
                 console.log(JSON.stringify(err.response?.data?.message[0]));
                 setMessage(err.response?.data?.message[0]);
+                setLoading(false);
             } else {
                 setMessage("Internal server error");
+                setLoading(false);
             }
         }
     };
@@ -252,67 +278,78 @@ function BusManagementPage() {
                     </Button>
                 </div>
                 <div className="table-responsive">
-                    <Table striped bordered hover responsive>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Start Destination</th>
-                                <th>End Destination</th>
-                                <th>Capacity</th>
-                                <th>Available Seats</th>
-                                <th>Reserved Seats</th>
-                                <th>Departure Date</th>
-                                <th>Departure Time</th>
-                                <th>Arrival Date</th>
-                                <th>Arrival Time</th>
-                                <th>Distance</th>
-                                <th>Ticket Price</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {buses.map((bus) => (
-                                <tr key={bus.id}>
-                                    <td type="number">{bus.id}</td>
-                                    <td type="text">{bus.name}</td>
-                                    <td type="text">{bus.startDestination}</td>
-                                    <td type="text">{bus.endDestination}</td>
-                                    <td type="number">{bus.capacity}</td>
-                                    <td type="number">{bus.availableSeats}</td>
-                                    <td type="number">{bus.reservedSeats}</td>
-                                    <td type="date">{bus.departureDate}</td>
-                                    <td type="time">{bus.departureTime}</td>
-                                    <td type="date">{bus.arrivalDate}</td>
-                                    <td type="time">{bus.arrivalTime}</td>
-                                    <td type="number">{bus.distance}</td>
-                                    <td type="currency">{bus.ticketPrice}</td>
-                                    <td>
-                                        <div className="d-flex">
-                                            <div style={{ width: "5%" }}></div>
-                                            <Button
-                                                variant="info"
-                                                size="sm"
-                                                className="mr-2 ml-2"
-                                                onClick={() => handleEditShow(bus)}
-                                            >
-                                                <FontAwesomeIcon icon={faEdit} />
-                                            </Button>
-                                            <div style={{ width: "10%" }}></div>
-                                            <Button
-                                                variant="danger"
-                                                size="sm"
-                                                onClick={() => handleDelete(bus)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrashAlt} />
-                                            </Button>
-                                        </div>
-                                    </td>
+                    {buses.length === 0 ? (
+                        <div className="alert alert-info">
+                            <p>There are no buses in the system at the moment. Please check back later or add new buses.</p>
+                        </div>) : (
+                        <Table striped bordered hover responsive>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Capacity</th>
+                                    <th>Available Seats</th>
+                                    <th>Reserved Seats</th>
+                                    <th>Departure Date</th>
+                                    <th>Departure Time</th>
+                                    <th>Arrival Date</th>
+                                    <th>Arrival Time</th>
+                                    <th>Distance</th>
+                                    <th>Ticket Price</th>
+                                    <th>Action(Edit/Delete)</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {buses.map((bus) => (
+                                    <tr key={bus.id}>
+                                        <td type="number">{bus.id}</td>
+                                        <td type="text">{bus.name}</td>
+                                        <td type="text">{bus.startDestination}</td>
+                                        <td type="text">{bus.endDestination}</td>
+                                        <td type="number">{bus.capacity}</td>
+                                        <td type="number">{bus.availableSeats}</td>
+                                        <td type="number">{bus.reservedSeats}</td>
+                                        <td type="date">{bus.departureDate}</td>
+                                        <td type="time">{bus.departureTime}</td>
+                                        <td type="date">{bus.arrivalDate}</td>
+                                        <td type="time">{bus.arrivalTime}</td>
+                                        <td type="number">{bus.distance}</td>
+                                        <td type="currency">{bus.ticketPrice}</td>
+                                        <td>
+                                            <div className="d-flex">
+                                                <div style={{ width: "5%" }}></div>
+                                                <Button
+                                                    variant="info"
+                                                    size="sm"
+                                                    className="mr-2 ml-2"
+                                                    onClick={() => handleEditShow(bus)}
+                                                >
+                                                    <FontAwesomeIcon icon={faEdit} />
+                                                </Button>
+                                                <div style={{ width: "10%" }}></div>
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(bus)}
+                                                >
+                                                    <FontAwesomeIcon icon={faTrashAlt} />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    )}
                 </div>
+
+                {loading && (
+                    <div className="text-center">
+                        <BeatLoader color={"#123abc"} loading={loading} />
+                    </div>
+                )}
 
                 <Modal show={showAddModal} onHide={handleAddClose}>
                     <Modal.Header closeButton>
@@ -441,7 +478,7 @@ function BusManagementPage() {
                 )}
             </Container>
 
-            <footer className="bg-dark text-white py-3" style={{ marginTop: "10rem", height: "10rem" }}>
+            <footer className="bg-dark text-white py-3" style={{ marginTop: "15rem", height: "10rem" }}>
                 <div className="container">
                     <div className="row">
                         <div className="col-md-6">

@@ -16,7 +16,7 @@ function AdminDashboard() {
     };
 
     return (
-        <div style={{ background: "#f5f5f5" }}>
+        <div>
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Navbar.Brand as={Link} to="/admin/home">
                     Bus Ticketing System

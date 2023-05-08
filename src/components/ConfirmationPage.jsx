@@ -48,7 +48,7 @@ function ConfirmationPage() {
         };
 
         sendConfirmationRequest();
-    }, []);
+    }, [location.search, navigate]);
 
     return (
         <div className="d-flex flex-column align-items-center">
