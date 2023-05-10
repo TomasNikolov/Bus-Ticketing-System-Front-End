@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Modal, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { Container, Table, Button, Modal, Form, Nav, Navbar, NavDropdown, Row, Col } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
@@ -280,41 +280,47 @@ function BookingManagementPage() {
                         <Modal.Body>
                             {successMessage && <div className="alert alert-success mt-2">{successMessage}</div>}
                             <Form onSubmit={handleEditSubmit}>
-                                <Form.Group controlId="startDestination" className="mb-3">
-                                    <Form.Label>Start Destination</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter start destination" required defaultValue={selectedBooking.startDestination} />
-                                </Form.Group>
-                                <Form.Group controlId="endDestination" className="mb-3">
-                                    <Form.Label>End Destination</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter end destination" required defaultValue={selectedBooking.endDestination} />
-                                </Form.Group>
-                                <Form.Group controlId="departureDate" className="mb-3">
-                                    <Form.Label>Departure Date</Form.Label>
-                                    <Form.Control type="date" placeholder="Enter departure date" required defaultValue={selectedBooking.departureDate} />
-                                </Form.Group>
-                                <Form.Group controlId="departureTime" className="mb-3">
-                                    <Form.Label>Departure Time</Form.Label>
-                                    <Form.Control type="time" placeholder="Enter departure time" required defaultValue={selectedBooking.departureTime} />
-                                </Form.Group>
-                                <Form.Group controlId="arrivalDate" className="mb-3">
-                                    <Form.Label>Arrival Date</Form.Label>
-                                    <Form.Control type="date" placeholder="Enter arrival date" required defaultValue={selectedBooking.arrivalDate} />
-                                </Form.Group>
-                                <Form.Group controlId="arrivalTime" className="mb-3">
-                                    <Form.Label>Arrival Time</Form.Label>
-                                    <Form.Control type="time" placeholder="Enter arrival time" required defaultValue={selectedBooking.arrivalTime} />
-                                </Form.Group>
-                                <Form.Group controlId="status" className="mb-3">
-                                    <Form.Label>Status</Form.Label>
-                                    <Form.Control as="select" defaultValue='Active' required>
-                                        <option>Active</option>
-                                        <option>Canceled</option>
-                                    </Form.Control>
-                                </Form.Group>
-                                <Form.Group controlId="price" className="mb-3">
-                                    <Form.Label>Price</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter price" defaultValue={selectedBooking.price} required />
-                                </Form.Group>
+                                <Row>
+                                    <Col>
+                                        <Form.Group controlId="startDestination" className="mb-3">
+                                            <Form.Label>Start Destination</Form.Label>
+                                            <Form.Control type="text" placeholder="Enter start destination" required defaultValue={selectedBooking.startDestination} />
+                                        </Form.Group>
+                                        <Form.Group controlId="departureDate" className="mb-3">
+                                            <Form.Label>Departure Date</Form.Label>
+                                            <Form.Control type="date" placeholder="Enter departure date" required defaultValue={selectedBooking.departureDate} />
+                                        </Form.Group>
+                                        <Form.Group controlId="arrivalDate" className="mb-3">
+                                            <Form.Label>Arrival Date</Form.Label>
+                                            <Form.Control type="date" placeholder="Enter arrival date" required defaultValue={selectedBooking.arrivalDate} />
+                                        </Form.Group>
+                                        <Form.Group controlId="status" className="mb-3">
+                                            <Form.Label>Status</Form.Label>
+                                            <Form.Control as="select" defaultValue='Active' required>
+                                                <option>Active</option>
+                                                <option>Canceled</option>
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group controlId="endDestination" className="mb-3">
+                                            <Form.Label>End Destination</Form.Label>
+                                            <Form.Control type="text" placeholder="Enter end destination" required defaultValue={selectedBooking.endDestination} />
+                                        </Form.Group>
+                                        <Form.Group controlId="departureTime" className="mb-3">
+                                            <Form.Label>Departure Time</Form.Label>
+                                            <Form.Control type="time" placeholder="Enter departure time" required defaultValue={selectedBooking.departureTime} />
+                                        </Form.Group>
+                                        <Form.Group controlId="arrivalTime" className="mb-3">
+                                            <Form.Label>Arrival Time</Form.Label>
+                                            <Form.Control type="time" placeholder="Enter arrival time" required defaultValue={selectedBooking.arrivalTime} />
+                                        </Form.Group>
+                                        <Form.Group controlId="price" className="mb-3">
+                                            <Form.Label>Price</Form.Label>
+                                            <Form.Control type="number" placeholder="Enter price" defaultValue={selectedBooking.price} required />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
                                 <Button variant="primary" type="submit">
                                     Update
                                 </Button>

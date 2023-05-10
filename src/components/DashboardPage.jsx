@@ -34,6 +34,9 @@ function DashboardPage() {
                         <Nav.Link as={Link} to="/my_bookings">
                             My Bookings
                         </Nav.Link>
+                        <Nav.Link as={Link} to="/user/profile">
+                            Personal Information
+                        </Nav.Link>
                         <Nav.Link onClick={handleLogout}>
                             Logout
                         </Nav.Link>
@@ -57,12 +60,12 @@ function DashboardPage() {
                         </div>
                         <div className="admin-page-action-title">My Bookings</div>
                     </Link>
-                    {/* <Link to="/admin/users" className="admin-page-action">
+                    <Link to="/user/profile" className="admin-page-action">
                         <div className="admin-page-action-icon">
                             <FontAwesomeIcon icon={faUsers} />
                         </div>
-                        <div className="admin-page-action-title">User Management</div>
-                    </Link> */}
+                        <div className="admin-page-action-title">Update Profile</div>
+                    </Link>
                 </div>
             </div>
 

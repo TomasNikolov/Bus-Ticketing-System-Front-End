@@ -123,6 +123,9 @@ function BusSearchPage() {
                         <Nav.Link as={Link} to="/my_bookings">
                             My Bookings
                         </Nav.Link>
+                        <Nav.Link as={Link} to="/user/profile">
+                            Personal Information
+                        </Nav.Link>
                         <Nav.Link onClick={handleLogout}>
                             Logout
                         </Nav.Link>

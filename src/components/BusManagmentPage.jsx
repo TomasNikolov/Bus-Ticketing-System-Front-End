@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Modal, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { Container, Table, Button, Modal, Form, Nav, Navbar, NavDropdown, Row, Col } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
@@ -358,54 +358,60 @@ function BusManagementPage() {
                     <Modal.Body>
                         {successMessage && <div className="alert alert-success mt-2">{successMessage}</div>}
                         <Form onSubmit={handleAddSubmit}>
-                            <Form.Group controlId="name" className="mb-3">
-                                <Form.Label>Name</Form.Label>
-                                <Form.Control type="text" placeholder="Enter name" required />
-                            </Form.Group>
-                            <Form.Group controlId="startDestination" className="mb-3">
-                                <Form.Label>Start Destination</Form.Label>
-                                <Form.Control type="text" placeholder="Enter start destination" required />
-                            </Form.Group>
-                            <Form.Group controlId="endDestination" className="mb-3">
-                                <Form.Label>End Destination</Form.Label>
-                                <Form.Control type="text" placeholder="Enter end destination" required />
-                            </Form.Group>
-                            <Form.Group controlId="capacity" className="mb-3">
-                                <Form.Label>Capacity</Form.Label>
-                                <Form.Control type="number" placeholder="Enter bus capacity" required />
-                            </Form.Group>
-                            <Form.Group controlId="availableSeats" className="mb-3">
-                                <Form.Label>Available Seats</Form.Label>
-                                <Form.Control type="number" placeholder="Enter available seats" required />
-                            </Form.Group>
-                            <Form.Group controlId="reservedSeats" className="mb-3">
-                                <Form.Label>Reserved Seats</Form.Label>
-                                <Form.Control type="number" placeholder="Enter reserved seats" required />
-                            </Form.Group>
-                            <Form.Group controlId="departureDate" className="mb-3">
-                                <Form.Label>Departure Date</Form.Label>
-                                <Form.Control type="date" placeholder="Enter departure date" required />
-                            </Form.Group>
-                            <Form.Group controlId="departureTime" className="mb-3">
-                                <Form.Label>Departure Time</Form.Label>
-                                <Form.Control type="time" placeholder="Enter departure time" required />
-                            </Form.Group>
-                            <Form.Group controlId="arrivalDate" className="mb-3">
-                                <Form.Label>Arrival Date</Form.Label>
-                                <Form.Control type="date" placeholder="Enter arrival date" required />
-                            </Form.Group>
-                            <Form.Group controlId="arrivalTime" className="mb-3">
-                                <Form.Label>Arrival Time</Form.Label>
-                                <Form.Control type="time" placeholder="Enter arrival time" required />
-                            </Form.Group>
-                            <Form.Group controlId="distance" className="mb-3">
-                                <Form.Label>Route Distance</Form.Label>
-                                <Form.Control type="number" placeholder="Enter route distance" required />
-                            </Form.Group>
-                            <Form.Group controlId="ticketPrice" className="mb-3">
-                                <Form.Label>Ticket Price</Form.Label>
-                                <Form.Control type="number" placeholder="Enter ticket price" required />
-                            </Form.Group>
+                            <Row>
+                                <Col>
+                                    <Form.Group controlId="name" className="mb-3">
+                                        <Form.Label>Name</Form.Label>
+                                        <Form.Control type="text" placeholder="Enter name" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="startDestination" className="mb-3">
+                                        <Form.Label>Start Destination</Form.Label>
+                                        <Form.Control type="text" placeholder="Enter start destination" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="departureDate" className="mb-3">
+                                        <Form.Label>Departure Date</Form.Label>
+                                        <Form.Control type="date" placeholder="Enter departure date" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="arrivalDate" className="mb-3">
+                                        <Form.Label>Arrival Date</Form.Label>
+                                        <Form.Control type="date" placeholder="Enter arrival date" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="availableSeats" className="mb-3">
+                                        <Form.Label>Available Seats</Form.Label>
+                                        <Form.Control type="number" placeholder="Enter available seats" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="distance" className="mb-3">
+                                        <Form.Label>Route Distance</Form.Label>
+                                        <Form.Control type="number" placeholder="Enter route distance" required />
+                                    </Form.Group>
+                                </Col>
+                                <Col>
+                                    <Form.Group controlId="capacity" className="mb-3">
+                                        <Form.Label>Capacity</Form.Label>
+                                        <Form.Control type="number" placeholder="Enter bus capacity" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="endDestination" className="mb-3">
+                                        <Form.Label>End Destination</Form.Label>
+                                        <Form.Control type="text" placeholder="Enter end destination" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="departureTime" className="mb-3">
+                                        <Form.Label>Departure Time</Form.Label>
+                                        <Form.Control type="time" placeholder="Enter departure time" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="arrivalTime" className="mb-3">
+                                        <Form.Label>Arrival Time</Form.Label>
+                                        <Form.Control type="time" placeholder="Enter arrival time" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="reservedSeats" className="mb-3">
+                                        <Form.Label>Reserved Seats</Form.Label>
+                                        <Form.Control type="number" placeholder="Enter reserved seats" required />
+                                    </Form.Group>
+                                    <Form.Group controlId="ticketPrice" className="mb-3">
+                                        <Form.Label>Ticket Price</Form.Label>
+                                        <Form.Control type="number" placeholder="Enter ticket price" required />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
                             <Button variant="primary" type="submit">
                                 Add
                             </Button>
@@ -421,54 +427,60 @@ function BusManagementPage() {
                         <Modal.Body>
                             {successMessage && <div className="alert alert-success mt-2">{successMessage}</div>}
                             <Form onSubmit={handleEditSubmit}>
-                                <Form.Group controlId="name" className="mb-3">
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter name" required defaultValue={selectedBus.name} />
-                                </Form.Group>
-                                <Form.Group controlId="startDestination" className="mb-3">
-                                    <Form.Label>Start Destination</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter start destination" required defaultValue={selectedBus.startDestination} />
-                                </Form.Group>
-                                <Form.Group controlId="endDestination" className="mb-3">
-                                    <Form.Label>End Destination</Form.Label>
-                                    <Form.Control type="text" placeholder="Enter end destination" required defaultValue={selectedBus.endDestination} />
-                                </Form.Group>
-                                <Form.Group controlId="capacity" className="mb-3">
-                                    <Form.Label>Capacity</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter bus capacity" required defaultValue={selectedBus.capacity} />
-                                </Form.Group>
-                                <Form.Group controlId="availableSeats" className="mb-3">
-                                    <Form.Label>Available Seats</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter available seats" required defaultValue={selectedBus.availableSeats} />
-                                </Form.Group>
-                                <Form.Group controlId="reservedSeats" className="mb-3">
-                                    <Form.Label>Reserved Seats</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter reserved seats" required defaultValue={selectedBus.reservedSeats} />
-                                </Form.Group>
-                                <Form.Group controlId="departureDate" className="mb-3">
-                                    <Form.Label>Departure Date</Form.Label>
-                                    <Form.Control type="date" placeholder="Enter departure date" required defaultValue={selectedBus.departureDate} />
-                                </Form.Group>
-                                <Form.Group controlId="departureTime" className="mb-3">
-                                    <Form.Label>Departure Time</Form.Label>
-                                    <Form.Control type="time" placeholder="Enter departure time" required defaultValue={selectedBus.departureTime} />
-                                </Form.Group>
-                                <Form.Group controlId="arrivalDate" className="mb-3">
-                                    <Form.Label>Arrival Date</Form.Label>
-                                    <Form.Control type="date" placeholder="Enter arrival date" required defaultValue={selectedBus.arrivalDate} />
-                                </Form.Group>
-                                <Form.Group controlId="arrivalTime" className="mb-3">
-                                    <Form.Label>Arrival Time</Form.Label>
-                                    <Form.Control type="time" placeholder="Enter arrival time" required defaultValue={selectedBus.arrivalTime} />
-                                </Form.Group>
-                                <Form.Group controlId="distance" className="mb-3">
-                                    <Form.Label>Route Distance</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter route distance" required defaultValue={selectedBus.distance} />
-                                </Form.Group>
-                                <Form.Group controlId="ticketPrice" className="mb-3">
-                                    <Form.Label>Ticket Price</Form.Label>
-                                    <Form.Control type="number" placeholder="Enter ticket price" required defaultValue={selectedBus.ticketPrice} />
-                                </Form.Group>
+                                <Row>
+                                    <Col>
+                                        <Form.Group controlId="name" className="mb-3">
+                                            <Form.Label>Name</Form.Label>
+                                            <Form.Control type="text" placeholder="Enter name" required defaultValue={selectedBus.name} />
+                                        </Form.Group>
+                                        <Form.Group controlId="startDestination" className="mb-3">
+                                            <Form.Label>Start Destination</Form.Label>
+                                            <Form.Control type="text" placeholder="Enter start destination" required defaultValue={selectedBus.startDestination} />
+                                        </Form.Group>
+                                        <Form.Group controlId="departureDate" className="mb-3">
+                                            <Form.Label>Departure Date</Form.Label>
+                                            <Form.Control type="date" placeholder="Enter departure date" required defaultValue={selectedBus.departureDate} />
+                                        </Form.Group>
+                                        <Form.Group controlId="arrivalDate" className="mb-3">
+                                            <Form.Label>Arrival Date</Form.Label>
+                                            <Form.Control type="date" placeholder="Enter arrival date" required defaultValue={selectedBus.arrivalDate} />
+                                        </Form.Group>
+                                        <Form.Group controlId="availableSeats" className="mb-3">
+                                            <Form.Label>Available Seats</Form.Label>
+                                            <Form.Control type="number" placeholder="Enter available seats" required defaultValue={selectedBus.availableSeats} />
+                                        </Form.Group>
+                                        <Form.Group controlId="distance" className="mb-3">
+                                            <Form.Label>Route Distance</Form.Label>
+                                            <Form.Control type="number" placeholder="Enter route distance" required defaultValue={selectedBus.distance} />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group controlId="capacity" className="mb-3">
+                                            <Form.Label>Capacity</Form.Label>
+                                            <Form.Control type="number" placeholder="Enter bus capacity" required defaultValue={selectedBus.capacity} />
+                                        </Form.Group>
+                                        <Form.Group controlId="endDestination" className="mb-3">
+                                            <Form.Label>End Destination</Form.Label>
+                                            <Form.Control type="text" placeholder="Enter end destination" required defaultValue={selectedBus.endDestination} />
+                                        </Form.Group>
+                                        <Form.Group controlId="departureTime" className="mb-3">
+                                            <Form.Label>Departure Time</Form.Label>
+                                            <Form.Control type="time" placeholder="Enter departure time" required defaultValue={selectedBus.departureTime} />
+                                        </Form.Group>
+                                        <Form.Group controlId="arrivalTime" className="mb-3">
+                                            <Form.Label>Arrival Time</Form.Label>
+                                            <Form.Control type="time" placeholder="Enter arrival time" required defaultValue={selectedBus.arrivalTime} />
+                                        </Form.Group>
+                                        <Form.Group controlId="reservedSeats" className="mb-3">
+                                            <Form.Label>Reserved Seats</Form.Label>
+                                            <Form.Control type="number" placeholder="Enter reserved seats" required defaultValue={selectedBus.reservedSeats} />
+                                        </Form.Group>
+                                        <Form.Group controlId="ticketPrice" className="mb-3">
+                                            <Form.Label>Ticket Price</Form.Label>
+                                            <Form.Control type="number" placeholder="Enter ticket price" required defaultValue={selectedBus.ticketPrice} />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
                                 <Button variant="primary" type="submit">
                                     Update
                                 </Button>

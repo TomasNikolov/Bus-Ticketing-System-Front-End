@@ -14,6 +14,7 @@ import BusManagementPage from './components/BusManagmentPage';
 import UserManagementPage from './components/UserManagmentPage';
 import BookingManagementPage from './components/BookingManagementPage';
 import BusSearchPage from './components/BusSearchPage';
+import EditProfile from './components/EditProfile';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path='/admin/users' element={<UserManagementPage />} />
           <Route path='/admin/bookings' element={<BookingManagementPage />} />
           <Route path='/home' element={<DashboardPage />} />
+          <Route path='/user/profile' element={<EditProfile />} />
           <Route path='/find_bus' element={<BusSearchPage />} />
           <Route path='/booking' element={<BookingPage />} />
           <Route path='/booking/ticket-preview' element={<TicketPreview />} />
