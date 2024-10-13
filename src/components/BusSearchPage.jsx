@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import './styles/DashboardPage.css';
+import './styles/BusSearchPage.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Table, Navbar, Nav } from 'react-bootstrap';
+import { Navbar, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { FilterMatchMode, FilterOperator } from 'primereact/api';
+import { InputNumber } from 'primereact/inputnumber';
+import 'primereact/resources/primereact.css';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 
 function BusSearchPage() {
     const [startDestination, setStartDestination] = useState('');
@@ -16,6 +22,8 @@ function BusSearchPage() {
     const [endError, setEndError] = useState('');
     const [dateError, setDateError] = useState('');
     const [busData, setBusData] = useState([]);
+    const [filters, setFilters] = useState(null);
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
     const navigate = useNavigate();
 
     const handleStarDestinationChange = (event) => {
@@ -91,7 +99,7 @@ function BusSearchPage() {
     }
 
     function handleBooking(bus) {
-        console.log("Booking ticket for bus with ID: ", bus.id);
+        console.log("Bus: ", JSON.stringify(bus)); 
 
         localStorage.setItem('busId', bus.id);
         localStorage.setItem('startDestination', bus.startDestination);
@@ -106,6 +114,43 @@ function BusSearchPage() {
         localStorage.setItem('ticketPrice', bus.ticketPrice);
 
         navigate("/booking")
+    };
+
+    const formatCurrency = (value) => {
+        return value.toLocaleString('bg-BG', { style: 'currency', currency: 'BGN' });
+    };
+
+    const clearFilter = () => {
+        initFilters();
+    };
+
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+
+        _filters['global'].value = value;
+
+        setFilters(_filters);
+        setGlobalFilterValue(value);
+    };
+
+    const initFilters = () => {
+        setFilters({
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            departureTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
+            arrivalTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
+            ticketPrice: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
+        });
+        setGlobalFilterValue('');
+    };
+
+    const ticketPriceBodyTemplate = (rowData) => {
+        return formatCurrency(rowData.ticketPrice);
+    };
+
+    const ticketPriceFilterTemplate = (options) => {
+        return <InputNumber value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} mode="currency" currency="BGN" locale="bg-BG" />;
     };
 
     return (
@@ -141,64 +186,122 @@ function BusSearchPage() {
                     <div className="col-md-3">
                         <div className="form-group">
                             <label className="control-label" htmlFor="from">From:</label>
-                            <input id="from" className="form-control" required autoFocus onChange={handleStarDestinationChange} />
-                            {startError && <div className="alert alert-danger mt-2">{startError}</div>}
+                            <input
+                                id="from"
+                                className="form-control"
+                                required
+                                onChange={handleStarDestinationChange}
+                            />
+                            {startError && <div className="alert alert-danger">{startError}</div>}
                         </div>
                     </div>
                     <div className="col-md-3">
                         <div className="form-group">
                             <label className="control-label" htmlFor="to">To:</label>
-                            <input id="to" className="form-control" required autoFocus onChange={handleEndDestinationChange} />
-                            {endError && <div className="alert alert-danger mt-2">{endError}</div>}
+                            <input
+                                id="to"
+                                className="form-control"
+                                required
+                                onChange={handleEndDestinationChange}
+                            />
+                            {endError && <div className="alert alert-danger">{endError}</div>}
                         </div>
                     </div>
                     <div className="col-md-3">
                         <div className="form-group">
                             <label className="control-label" htmlFor="date">Date:</label>
-                            <input type="date" id="date" className="form-control" required autoFocus onChange={handleDateChange} />
-                            {dateError && <div className="alert alert-danger mt-2">{dateError}</div>}
+                            <input
+                                type="date"
+                                id="date"
+                                className="form-control"
+                                required
+                                onChange={handleDateChange}
+                            />
+                            {dateError && <div className="alert alert-danger">{dateError}</div>}
                         </div>
                     </div>
-                    <div className="col-md-3">
-                        <button type="submit" className="btn btn-primary" style={{ marginTop: "24px" }} onClick={handleSearch}>Search</button>
+                    <div className="col-md-3" style={{ paddingTop: 33 }}>
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            onClick={handleSearch}
+                        >
+                            Search
+                        </button>
                     </div>
+                </div>
+
+                <div className="table-container mt-4">
+                    {busData.length > 0 && (
+                        <DataTable
+                            value={busData}
+                            tableStyle={{ minWidth: '50rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}
+                            paginator
+                            showGridlines
+                            rows={10}
+                            dataKey="id"
+                            className="styled-table"
+                            filters={filters}
+                            globalFilterFields={['name', 'departureTime', 'arrivalTime', 'ticketPrice']}
+                        >
+                            <Column field="name"
+                                header="Bus Name"
+                                className="table-column"
+                                filter
+                                filterPlaceholder="Search by bus name"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="startDestination"
+                                header="From"
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="endDestination"
+                                header="To"
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="departureTime"
+                                header="Departure Time"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="arrivalTime"
+                                header="Arrival Time"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="ticketPrice"
+                                header="Ticket Price"
+                                sortable
+                                className="table-column"
+                                filterField="ticketPrice"
+                                dataType="numeric"
+                                body={ticketPriceBodyTemplate}
+                                filter
+                                filterElement={ticketPriceFilterTemplate}
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column
+                                header="Action"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                                body={(rowData) => (
+                                    <button className="btn btn-primary action-btn" onClick={() => handleBooking(rowData)}>
+                                        Book
+                                    </button>
+                                )}
+                            ></Column>
+                        </DataTable>
+                    )}
                 </div>
             </div>
 
-            <br /><br /><br />
-
-            <div className="container">
-                {busData.length > 0 && (
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Departure Time</th>
-                                <th>Arrival Time</th>
-                                <th>Bus Name</th>
-                                <th>Ticket Price</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {busData.map((bus) => (
-                                <tr key={bus.id}>
-                                    <td type="text">{bus.startDestination}</td>
-                                    <td type="text">{bus.endDestination}</td>
-                                    <td type="time">{bus.departureTime}</td>
-                                    <td type="time">{bus.arrivalTime}</td>
-                                    <td type="text">{bus.name}</td>
-                                    <td type="number">{bus.ticketPrice}</td>
-                                    <td><button className="btn btn-primary" onClick={() => handleBooking(bus)}>Book</button></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                )}
-            </div>
-
-            <footer className="bg-dark text-white py-3" style={{ marginTop: "15rem", height: "10rem" }}>
+            <footer
+                className="bg-dark text-white py-3"
+                style={{ marginTop: "15rem", height: "10rem" }}
+            >
                 <div className="container">
                     <div className="row">
                         <div className="col-md-6">
@@ -215,8 +318,13 @@ function BusSearchPage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-secondary text-center py-2" style={{ height: "3.5rem" }}>
-                    <p className="mb-0">&copy; 2023 Bus Reservation. All rights reserved.</p>
+                <div
+                    className="bg-secondary text-center py-2"
+                    style={{ height: "3.5rem" }}
+                >
+                    <p className="mb-0">
+                        &copy; 2024 Bus Reservation. All rights reserved.
+                    </p>
                 </div>
             </footer>
         </div>

@@ -2,10 +2,16 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Table, Navbar, Nav } from 'react-bootstrap';
+import { Navbar, Nav } from 'react-bootstrap';
 import InfoMessage from './InfoMessage';
 import { Link } from 'react-router-dom';
 import { BeatLoader } from "react-spinners";
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { FilterMatchMode, FilterOperator } from 'primereact/api';
+import { InputNumber } from 'primereact/inputnumber';
+import 'primereact/resources/primereact.css';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 
 function MyBookingsPage() {
     const userId = localStorage.getItem('userId');
@@ -14,6 +20,8 @@ function MyBookingsPage() {
     const navigate = useNavigate();
     const [disableButton, setDisableButton] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [filters, setFilters] = useState(null);
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -50,6 +58,10 @@ function MyBookingsPage() {
     }, [userId]);
 
     const handleCancelClick = async (booking) => {
+        const confirmDelete = window.confirm("Are you sure you want to cancel this booking?");
+        if (!confirmDelete) {
+            return;
+        }
         setLoading(true);
         setDisableButton(true);
 
@@ -136,6 +148,43 @@ function MyBookingsPage() {
         navigate("/");
     };
 
+    const formatCurrency = (value) => {
+        console.log('Currency: ' + value);
+        return value.toLocaleString('bg-BG', { style: 'currency', currency: 'BGN' });
+    };
+
+    const clearFilter = () => {
+        initFilters();
+    };
+
+    const onGlobalFilterChange = (e) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+
+        _filters['global'].value = value;
+
+        setFilters(_filters);
+        setGlobalFilterValue(value);
+    };
+
+    const initFilters = () => {
+        setFilters({
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            departureTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
+            arrivalTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
+            ticketPrice: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
+        });
+        setGlobalFilterValue('');
+    };
+
+    const ticketPriceBodyTemplate = (rowData) => {
+        return formatCurrency(rowData.price);
+    };
+
+    const ticketPriceFilterTemplate = (options) => {
+        return <InputNumber value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} mode="currency" currency="BGN" locale="bg-BG" />;
+    };
+
     return (
         <div style={{ background: "#f5f5f5" }}>
             <Navbar bg="dark" variant="dark" expand="lg">
@@ -167,40 +216,93 @@ function MyBookingsPage() {
                 <h1 style={{ textAlign: "center", paddingBottom: "2rem" }}>My Bookings</h1>
                 {message && <div className="alert alert-danger mt-2">{message}</div>}
                 {bookings.length === 0 ? <InfoMessage /> : (
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Departure Date</th>
-                                <th>Departure Time</th>
-                                <th>Arrival Date</th>
-                                <th>Arrival Time</th>
-                                <th>Bus Name</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Cancel Booking</th>
-                                <th>Generate Ticket(Will be sent on Email)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {bookings.map((booking) => (
-                                <tr key={booking.id}>
-                                    <td type="text">{booking.startDestination}</td>
-                                    <td type="text">{booking.endDestination}</td>
-                                    <td type="date">{booking.departureDate}</td>
-                                    <td type="time">{booking.departureTime}</td>
-                                    <td type="date">{booking.arrivalDate}</td>
-                                    <td type="time">{booking.arrivalTime}</td>
-                                    <td type="text">{booking.busName}</td>
-                                    <td type="currency">{booking.price}</td>
-                                    <td type="text">{booking.status}</td>
-                                    <td><button className="btn btn-danger" disabled={disableButton} style={{ borderRadius: "10px" }} onClick={() => handleCancelClick(booking)}>Cancel Booking</button></td>
-                                    <td><button className="btn btn-primary" disabled={disableButton} style={{ borderRadius: "10px" }} onClick={() => handleGenerateClick(booking)}>Generate Ticket</button></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                    <DataTable
+                            value={bookings}
+                            tableStyle={{ minWidth: '50rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}
+                            paginator
+                            showGridlines
+                            rows={10}
+                            dataKey="id"
+                            className="styled-table"
+                            filters={filters}
+                            globalFilterFields={['name', 'departureTime', 'arrivalTime', 'ticketPrice']}
+                        >
+                            <Column field="startDestination"
+                                header="From"
+                                sortable
+                                filter
+                                filterPlaceholder="Search by bus destination"
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="endDestination"
+                                header="To"
+                                sortable
+                                filter
+                                filterPlaceholder="Search by bus destination"
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="departureDate"
+                                header="Departure Date"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="departureTime"
+                                header="Departure Time"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="arrivalDate"
+                                header="Arrival Date"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="arrivalTime"
+                                header="Arrival Time"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="price"
+                                header="Ticket Price"
+                                sortable
+                                className="table-column"
+                                filterField="ticketPrice"
+                                dataType="numeric"
+                                body={ticketPriceBodyTemplate}
+                                filter
+                                filterElement={ticketPriceFilterTemplate}
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="status"
+                                header="Status"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column
+                                header="Generate Ticket"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                                body={(rowData) => (
+                                    <button className="btn btn-primary action-btn" disabled={disableButton} onClick={() => handleGenerateClick(rowData)}>
+                                        Generate
+                                    </button>
+                                )}
+                            ></Column>
+                            <Column
+                                header="Cancel Booking"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                                body={(rowData) => (
+                                    <button className="btn btn-danger action-btn" disabled={disableButton} onClick={() => handleCancelClick(rowData)}>
+                                        Cancel
+                                    </button>
+                                )}
+                            ></Column>
+                        </DataTable>
                 )}
 
                 {loading && (
