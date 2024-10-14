@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Modal, Form, Nav, Navbar, NavDropdown, Row, Col } from "react-bootstrap";
+import React, { useState, useEffect, useRef } from "react";
+import { Container, Button, Modal, Form, Nav, Navbar, NavDropdown, Row, Col } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { InputNumber } from 'primereact/inputnumber';
+import 'primereact/resources/primereact.css';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
 
 function BusManagementPage() {
     const navigate = useNavigate();
@@ -16,6 +23,26 @@ function BusManagementPage() {
     const [message, setMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const toast = useRef(null);
+
+    const accept = (bus) => {
+        handleDelete(bus);
+    }
+
+    const reject = () => {
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected to delete a bus!', life: 5000 });
+    }
+
+    const confirmDeleteBus = (bus) => {
+        confirmDialog({
+            message: 'Do you want delete this bus?',
+            header: 'Delete Confirmation',
+            icon: 'pi pi-info-circle',
+            acceptClassName: 'p-button-danger',
+            accept: () => accept(bus),
+            reject
+        });
+    };
 
     useEffect(() => {
         const fetchBuses = async () => {
@@ -101,11 +128,13 @@ function BusManagementPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 201) {
-                setLoading(false);
-                setSuccessMessage('The bus has been successfully created.');
-                setTimeout(() => console.log(""), 5000);
                 setShowAddModal(false);
-                window.location.reload();
+                setShowEditModal(false);
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'The bus has been successfully created!', life: 5000 });
+                setTimeout(() => {
+                    window.location.reload();
+                    setLoading(false);
+                }, 5000);
             }
         } catch (err) {
             if (!err?.response) {
@@ -162,12 +191,13 @@ function BusManagementPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 200) {
-                setSuccessMessage('The bus has been successfully updated.');
-                setTimeout(() => { }, 5000);
-                setSelectedBus(null);
                 setShowEditModal(false);
-                window.location.reload();
-                setLoading(false);
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'The bus has been successfully updated!', life: 5000 });
+                setTimeout(() => {
+                    setSelectedBus(null);
+                    window.location.reload();
+                    setLoading(false);
+                }, 5000);
             }
         } catch (err) {
             if (!err?.response) {
@@ -189,11 +219,6 @@ function BusManagementPage() {
     };
 
     const handleDelete = async (bus) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this bus?");
-        if (!confirmDelete) {
-            return;
-        }
-
         setLoading(true);
         try {
             const response = await axios.delete(`http://localhost:8080/admin/buses?id=${bus.id}`,
@@ -208,10 +233,11 @@ function BusManagementPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 204) {
-                setSuccessMessage('The bus has been successfully deleted.');
-                setTimeout(() => { }, 5000);
-                window.location.reload();
-                setLoading(false);
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'The bus has been successfully deleted!', life: 5000 });
+                setTimeout(() => {
+                    window.location.reload();
+                    setLoading(false);
+                }, 5000);
             }
         } catch (err) {
             if (!err?.response) {
@@ -237,8 +263,23 @@ function BusManagementPage() {
         navigate("/");
     };
 
+    const formatCurrency = (value) => {
+        return value.toLocaleString('bg-BG', { style: 'currency', currency: 'BGN' });
+    };
+
+    const ticketPriceBodyTemplate = (rowData) => {
+        return formatCurrency(rowData.ticketPrice);
+    };
+
+    const ticketPriceFilterTemplate = (options) => {
+        return <InputNumber value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} mode="currency" currency="BGN" locale="bg-BG" />;
+    };
+
     return (
-        <div>
+        <div style={{ background: "#f5f5f5" }}>
+            <Toast ref={toast} />
+            <ConfirmDialog />
+
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Navbar.Brand as={Link} to="/admin/home">
                     Bus Ticketing System
@@ -290,92 +331,118 @@ function BusManagementPage() {
                         <div className="alert alert-info">
                             <p>There are no buses in the system at the moment. Please check back later or add new buses.</p>
                         </div>) : (
-                        <Table striped bordered hover responsive>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>From</th>
-                                    <th>To</th>
-                                    <th>Capacity</th>
-                                    <th>Available Seats</th>
-                                    <th>Reserved Seats</th>
-                                    <th>Departure Date</th>
-                                    <th>Departure Time</th>
-                                    <th>Arrival Date</th>
-                                    <th>Arrival Time</th>
-                                    <th>Distance</th>
-                                    <th>Ticket Price</th>
-                                    <th>Action(Edit/Delete)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {buses.map((bus) => (
-                                    <tr key={bus.id}>
-                                        <td type="number">
-                                            {bus.id}
-                                        </td>
-                                        <td type="text">
-                                            {bus.name}
-                                        </td>
-                                        <td type="text">
-                                            {bus.startDestination}
-                                        </td>
-                                        <td type="text">
-                                            {bus.endDestination}
-                                        </td>
-                                        <td type="number">
-                                            {bus.capacity}
-                                        </td>
-                                        <td type="number">
-                                            {bus.availableSeats}
-                                        </td>
-                                        <td type="number">
-                                            {bus.reservedSeats}
-                                        </td>
-                                        <td type="date">
-                                            {bus.departureDate}
-                                        </td>
-                                        <td type="time">
-                                            {bus.departureTime}
-                                        </td>
-                                        <td type="date">
-                                            {bus.arrivalDate}
-                                        </td>
-                                        <td type="time">
-                                            {bus.arrivalTime}
-                                        </td>
-                                        <td type="number">
-                                            {bus.distance}
-                                        </td>
-                                        <td type="currency">
-                                            {bus.ticketPrice}
-                                        </td>
-                                        <td>
-                                            <div className="d-flex">
-                                                <div style={{ width: "5%" }}></div>
-                                                <Button
-                                                    variant="info"
-                                                    size="sm"
-                                                    className="mr-2 ml-2"
-                                                    onClick={() => handleEditShow(bus)}
-                                                >
-                                                    <FontAwesomeIcon icon={faEdit} />
-                                                </Button>
-                                                <div style={{ width: "10%" }}></div>
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(bus)}
-                                                >
-                                                    <FontAwesomeIcon icon={faTrashAlt} />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                        <DataTable
+                            value={buses}
+                            tableStyle={{ minWidth: '50rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}
+                            paginator
+                            showGridlines
+                            rows={10}
+                            dataKey="id"
+                            className="styled-table"
+                        >
+                            <Column field="name"
+                                header="Bus Name"
+                                className="table-column"
+                                filter
+                                filterPlaceholder="Search by bus name"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="startDestination"
+                                header="From"
+                                sortable
+                                filter
+                                filterPlaceholder="Search by bus destination"
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="endDestination"
+                                header="To"
+                                sortable
+                                filter
+                                filterPlaceholder="Search by bus destination"
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="departureDate"
+                                header="Departure Date"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="arrivalDate"
+                                header="Arrival Date"
+                                sortable
+                                className="table-column"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="capacity"
+                                header="Capacity"
+                                sortable
+                                className="table-column"
+                                dataType="numeric"
+                                filter
+                                filterPlaceholder="Search by bus capacity"
+                                style={{ maxWidth: '8rem' }}
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="availableSeats"
+                                header="Available Seats"
+                                sortable
+                                className="table-column"
+                                dataType="numeric"
+                                filter
+                                filterPlaceholder="Search by available seats"
+                                style={{ maxWidth: '8rem' }}
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="reservedSeats"
+                                header="Reserved Seats"
+                                sortable
+                                className="table-column"
+                                dataType="numeric"
+                                filter
+                                filterPlaceholder="Search by available seats"
+                                style={{ maxWidth: '8rem' }}
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column field="ticketPrice"
+                                header="Ticket Price"
+                                sortable
+                                className="table-column"
+                                filterField="ticketPrice"
+                                dataType="numeric"
+                                body={ticketPriceBodyTemplate}
+                                filter
+                                filterElement={ticketPriceFilterTemplate}
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            ></Column>
+                            <Column
+                                header="Actions"
+                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                                style={{ minWidth: '7rem' }}
+                                body={(rowData) => (
+                                    <div className="d-flex align-items-center">
+                                        <div style={{ width: "20%" }}></div>
+                                        <Button
+                                            variant="info"
+                                            size="sm"
+                                            className="mr-3 ml-3"
+                                            onClick={() => handleEditShow(rowData)}
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} />
+                                        </Button>
+                                        <div style={{ width: "20%" }}></div>
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => confirmDeleteBus(rowData)}
+                                        >
+                                            <FontAwesomeIcon icon={faTrashAlt} />
+                                        </Button>
+                                    </div>
+                                )}
+                            ></Column>
+                        </DataTable>
                     )}
                 </div>
 
@@ -736,7 +803,7 @@ function BusManagementPage() {
                     style={{ height: "3.5rem" }}
                 >
                     <p className="mb-0">
-                        &copy; 2023 Bus Reservation. All rights reserved.
+                        &copy; 2024 Bus Reservation. All rights reserved.
                     </p>
                 </div>
             </footer>

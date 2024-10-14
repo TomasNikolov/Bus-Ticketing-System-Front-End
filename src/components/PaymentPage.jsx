@@ -230,7 +230,7 @@ function PaymentPage() {
                     </div>
                 </div>
                 <div className="bg-secondary text-center py-2">
-                    <p className="mb-0">&copy; 2023 Bus Reservation. All rights reserved.</p>
+                    <p className="mb-0">&copy; 2024 Bus Reservation. All rights reserved.</p>
                 </div>
             </footer>
         </div>

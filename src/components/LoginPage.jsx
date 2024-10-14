@@ -89,7 +89,6 @@ function LoginPage() {
             <div className="card col-sm-8 col-md-6 col-lg-4">
                 <div className="card-header">
                     <img src={logo} alt="Bus Logo" className="bus-logo" />
-                    <h1 className="text-center">Bus Ticketing System</h1>
                 </div>
                 <div className="card-body">
                     <form onSubmit={handleSubmit}>

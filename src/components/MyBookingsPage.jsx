@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,10 +8,11 @@ import { Link } from 'react-router-dom';
 import { BeatLoader } from "react-spinners";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { InputNumber } from 'primereact/inputnumber';
 import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
 
 function MyBookingsPage() {
     const userId = localStorage.getItem('userId');
@@ -20,8 +21,26 @@ function MyBookingsPage() {
     const navigate = useNavigate();
     const [disableButton, setDisableButton] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [filters, setFilters] = useState(null);
-    const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const toast = useRef(null);
+
+    const accept = (booking) => {
+        handleCancelClick(booking);
+    }
+
+    const reject = () => {
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected booking cancellation!', life: 5000 });
+    }
+
+    const confirmCancelBooking = (booking) => {
+        confirmDialog({
+            message: 'Do you want cancel this booking?',
+            header: 'Cancellation Confirmation',
+            icon: 'pi pi-info-circle',
+            acceptClassName: 'p-button-danger',
+            accept: () => accept(booking),
+            reject
+        });
+    };
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -58,10 +77,6 @@ function MyBookingsPage() {
     }, [userId]);
 
     const handleCancelClick = async (booking) => {
-        const confirmDelete = window.confirm("Are you sure you want to cancel this booking?");
-        if (!confirmDelete) {
-            return;
-        }
         setLoading(true);
         setDisableButton(true);
 
@@ -75,9 +90,12 @@ function MyBookingsPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 204) {
-                window.location.reload();
-                setLoading(false);
-                setDisableButton(false);
+                toast.current.show({ severity: 'success', summary: 'Confirmed', detail: 'Booking cancelled successfully!', life: 5000 });
+                setTimeout(() => {
+                    window.location.reload();
+                    setLoading(false);
+                    setDisableButton(false);
+                }, 5000);
             }
         } catch (err) {
             if (!err?.response) {
@@ -116,9 +134,12 @@ function MyBookingsPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 200) {
-                window.location.reload();
-                setLoading(false);
-                setDisableButton(false);
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'Ticket successfully generated!', life: 5000 });
+                setTimeout(() => {
+                    window.location.reload();
+                    setLoading(false);
+                    setDisableButton(false);
+                }, 5000);
             }
         } catch (err) {
             if (!err?.response) {
@@ -149,32 +170,7 @@ function MyBookingsPage() {
     };
 
     const formatCurrency = (value) => {
-        console.log('Currency: ' + value);
         return value.toLocaleString('bg-BG', { style: 'currency', currency: 'BGN' });
-    };
-
-    const clearFilter = () => {
-        initFilters();
-    };
-
-    const onGlobalFilterChange = (e) => {
-        const value = e.target.value;
-        let _filters = { ...filters };
-
-        _filters['global'].value = value;
-
-        setFilters(_filters);
-        setGlobalFilterValue(value);
-    };
-
-    const initFilters = () => {
-        setFilters({
-            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            departureTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
-            arrivalTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
-            ticketPrice: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
-        });
-        setGlobalFilterValue('');
     };
 
     const ticketPriceBodyTemplate = (rowData) => {
@@ -187,6 +183,9 @@ function MyBookingsPage() {
 
     return (
         <div style={{ background: "#f5f5f5" }}>
+            <Toast ref={toast} />
+            <ConfirmDialog />
+
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Navbar.Brand as={Link} to="/home">
                     Bus Ticketing System
@@ -217,92 +216,90 @@ function MyBookingsPage() {
                 {message && <div className="alert alert-danger mt-2">{message}</div>}
                 {bookings.length === 0 ? <InfoMessage /> : (
                     <DataTable
-                            value={bookings}
-                            tableStyle={{ minWidth: '50rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}
-                            paginator
-                            showGridlines
-                            rows={10}
-                            dataKey="id"
-                            className="styled-table"
-                            filters={filters}
-                            globalFilterFields={['name', 'departureTime', 'arrivalTime', 'ticketPrice']}
-                        >
-                            <Column field="startDestination"
-                                header="From"
-                                sortable
-                                filter
-                                filterPlaceholder="Search by bus destination"
-                                className="table-column"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column field="endDestination"
-                                header="To"
-                                sortable
-                                filter
-                                filterPlaceholder="Search by bus destination"
-                                className="table-column"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column field="departureDate"
-                                header="Departure Date"
-                                sortable
-                                className="table-column"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column field="departureTime"
-                                header="Departure Time"
-                                sortable
-                                className="table-column"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column field="arrivalDate"
-                                header="Arrival Date"
-                                sortable
-                                className="table-column"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column field="arrivalTime"
-                                header="Arrival Time"
-                                sortable
-                                className="table-column"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column field="price"
-                                header="Ticket Price"
-                                sortable
-                                className="table-column"
-                                filterField="ticketPrice"
-                                dataType="numeric"
-                                body={ticketPriceBodyTemplate}
-                                filter
-                                filterElement={ticketPriceFilterTemplate}
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column field="status"
-                                header="Status"
-                                sortable
-                                className="table-column"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                            ></Column>
-                            <Column
-                                header="Generate Ticket"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                                body={(rowData) => (
-                                    <button className="btn btn-primary action-btn" disabled={disableButton} onClick={() => handleGenerateClick(rowData)}>
-                                        Generate
-                                    </button>
-                                )}
-                            ></Column>
-                            <Column
-                                header="Cancel Booking"
-                                headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
-                                body={(rowData) => (
-                                    <button className="btn btn-danger action-btn" disabled={disableButton} onClick={() => handleCancelClick(rowData)}>
-                                        Cancel
-                                    </button>
-                                )}
-                            ></Column>
-                        </DataTable>
+                        value={bookings}
+                        tableStyle={{ minWidth: '50rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}
+                        paginator
+                        showGridlines
+                        rows={10}
+                        dataKey="id"
+                        className="styled-table"
+                    >
+                        <Column field="startDestination"
+                            header="From"
+                            sortable
+                            filter
+                            filterPlaceholder="Search by bus destination"
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="endDestination"
+                            header="To"
+                            sortable
+                            filter
+                            filterPlaceholder="Search by bus destination"
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="departureDate"
+                            header="Departure Date"
+                            sortable
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="departureTime"
+                            header="Departure Time"
+                            sortable
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="arrivalDate"
+                            header="Arrival Date"
+                            sortable
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="arrivalTime"
+                            header="Arrival Time"
+                            sortable
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="price"
+                            header="Ticket Price"
+                            sortable
+                            className="table-column"
+                            filterField="ticketPrice"
+                            dataType="numeric"
+                            body={ticketPriceBodyTemplate}
+                            filter
+                            filterElement={ticketPriceFilterTemplate}
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="status"
+                            header="Status"
+                            sortable
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column
+                            header="Generate Ticket"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            body={(rowData) => (
+                                <button className="btn btn-primary action-btn" disabled={disableButton} onClick={() => handleGenerateClick(rowData)}>
+                                    Generate
+                                </button>
+                            )}
+                        ></Column>
+                        <Column
+                            header="Cancel Booking"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            body={(rowData) => (
+                                <button className="btn btn-danger action-btn" disabled={disableButton} onClick={() => confirmCancelBooking(rowData)}>
+                                    Cancel
+                                </button>
+                            )}
+                        ></Column>
+                    </DataTable>
                 )}
 
                 {loading && (
@@ -330,7 +327,7 @@ function MyBookingsPage() {
                     </div>
                 </div>
                 <div className="bg-secondary text-center py-2">
-                    <p className="mb-0">&copy; 2023 Bus Reservation. All rights reserved.</p>
+                    <p className="mb-0">&copy; 2024 Bus Reservation. All rights reserved.</p>
                 </div>
             </footer>
         </div>

@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { Container, Table, Button, Modal, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import React, { useState, useEffect, useRef } from "react";
+import { Container, Button, Modal, Form, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import 'primereact/resources/primereact.css';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Toast } from 'primereact/toast';
 
 function UserManagementPage() {
     const navigate = useNavigate();
@@ -15,6 +21,26 @@ function UserManagementPage() {
     const [message, setMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const toast = useRef(null);
+
+    const accept = (user) => {
+        handleDelete(user);
+    }
+
+    const reject = () => {
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected to delete a user!', life: 5000 });
+    }
+
+    const confirmDeleteUser = (user) => {
+        confirmDialog({
+            message: 'Do you want delete this user?',
+            header: 'Delete Confirmation',
+            icon: 'pi pi-info-circle',
+            acceptClassName: 'p-button-danger',
+            accept: () => accept(user),
+            reject
+        });
+    };
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -93,12 +119,13 @@ function UserManagementPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 200) {
-                setSuccessMessage('User has been successfully updated.');
-                setTimeout(() => { }, 5000);
-                setSelectedUser(null);
                 setShowEditModal(false);
-                window.location.reload();
-                setLoading(false);
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'User has been successfully updated!', life: 5000 });
+                setTimeout(() => {
+                    window.location.reload();
+                    setLoading(false);
+                    setSelectedUser(null);
+                }, 5000);
             }
         } catch (err) {
             if (!err?.response) {
@@ -120,11 +147,6 @@ function UserManagementPage() {
     };
 
     const handleDelete = async (user) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-        if (!confirmDelete) {
-            return;
-        }
-
         setLoading(true);
         try {
             const response = await axios.delete(`http://localhost:8080/admin/users?id=${user.id}`,
@@ -139,10 +161,11 @@ function UserManagementPage() {
             console.log("RESPONSE: ", JSON.stringify(response));
 
             if (response?.status === 204) {
-                setSuccessMessage('User has been successfully deleted.');
-                setTimeout(() => { }, 5000);
-                window.location.reload();
-                setLoading(false);
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'User has been successfully deleted!', life: 5000 });
+                setTimeout(() => {
+                    window.location.reload();
+                    setLoading(false);
+                }, 5000);
             }
         } catch (err) {
             if (!err?.response) {
@@ -169,7 +192,10 @@ function UserManagementPage() {
     };
 
     return (
-        <div>
+        <div style={{ background: "#f5f5f5" }}>
+            <Toast ref={toast} />
+            <ConfirmDialog />
+
             <Navbar bg="dark" variant="dark" expand="lg">
                 <Navbar.Brand as={Link} to="/admin/home">
                     Bus Ticketing System
@@ -207,54 +233,89 @@ function UserManagementPage() {
                     <div className="alert alert-info">
                         <p>Currently, there are no users registered in the system. Please check back later.</p>
                     </div>) : (
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Enabled</th>
-                                <th>Role</th>
-                                <th>Action(Edit/Delete)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map((user) => (
-                                <tr key={user.id}>
-                                    <td type="number">{user.id}</td>
-                                    <td type="text">{user.username}</td>
-                                    <td type="email">{user.email}</td>
-                                    <td type="text">{user.firstName}</td>
-                                    <td type="text">{user.lastName}</td>
-                                    <td type="text">{user.enabled.toString()}</td>
-                                    <td type="text">{user.role}</td>
-                                    <td>
-                                        <div className="d-flex">
-                                            <div style={{ width: "5%" }}></div>
-                                            <Button
-                                                variant="info"
-                                                size="sm"
-                                                className="mr-2 ml-2"
-                                                onClick={() => handleEditShow(user)}
-                                            >
-                                                <FontAwesomeIcon icon={faEdit} />
-                                            </Button>
-                                            <div style={{ width: "10%" }}></div>
-                                            <Button
-                                                variant="danger"
-                                                size="sm"
-                                                onClick={() => handleDelete(user)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrashAlt} />
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                    <DataTable
+                        value={users}
+                        tableStyle={{ minWidth: '50rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}
+                        paginator
+                        showGridlines
+                        rows={10}
+                        dataKey="id"
+                        className="styled-table"
+                    >
+                        <Column field="username"
+                            header="Username"
+                            className="table-column"
+                            filter
+                            filterPlaceholder="Search by Username"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="firstName"
+                            header="First Name"
+                            sortable
+                            filter
+                            filterPlaceholder="Search by First Name"
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="lastName"
+                            header="Last Name"
+                            sortable
+                            filter
+                            filterPlaceholder="Search by Last Name"
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="email"
+                            header="Email"
+                            sortable
+                            filter
+                            filterPlaceholder="Search by Email"
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="role"
+                            header="Role"
+                            sortable
+                            filter
+                            filterPlaceholder="Search by Role"
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column field="status"
+                            header="Status"
+                            sortable
+                            filter
+                            filterPlaceholder="Search by Status"
+                            className="table-column"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                        ></Column>
+                        <Column
+                            header="Actions"
+                            headerStyle={{ backgroundColor: '#e0e7ff', color: '#2c3e50', fontWeight: 'bold' }}
+                            style={{ minWidth: '7rem' }}
+                            body={(rowData) => (
+                                <div className="d-flex align-items-center">
+                                    <div style={{ width: "20%" }}></div>
+                                    <Button
+                                        variant="info"
+                                        size="sm"
+                                        className="mr-3 ml-3"
+                                        onClick={() => handleEditShow(rowData)}
+                                    >
+                                        <FontAwesomeIcon icon={faEdit} />
+                                    </Button>
+                                    <div style={{ width: "20%" }}></div>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => confirmDeleteUser(rowData)}
+                                    >
+                                        <FontAwesomeIcon icon={faTrashAlt} />
+                                    </Button>
+                                </div>
+                            )}
+                        ></Column>
+                    </DataTable>
                 )}
 
                 {loading && (
@@ -324,7 +385,7 @@ function UserManagementPage() {
                     </div>
                 </div>
                 <div className="bg-secondary text-center py-2" style={{ height: "3.5rem" }}>
-                    <p className="mb-0">&copy; 2023 Bus Reservation. All rights reserved.</p>
+                    <p className="mb-0">&copy; 2024 Bus Reservation. All rights reserved.</p>
                 </div>
             </footer>
         </div>

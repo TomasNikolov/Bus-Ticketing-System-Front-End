@@ -162,46 +162,57 @@ function EditProfile() {
 
             <br />
 
-            <h1 style={{ textAlign: 'center' }}>Edit Profile</h1>
+            <div className="edit-profile-form">
+                <h1 className="text-center mb-4">Edit Profile</h1>
 
-            {message && <div className="alert alert-danger mt-2">{message}</div>}
-            {successMessage && <div className="alert alert-success mt-2">{successMessage}</div>}
+                {message && <div className="alert alert-danger mt-2">{message}</div>}
+                {successMessage && <div className="alert alert-success mt-2">{successMessage}</div>}
 
-            <Form onSubmit={handleSubmit} className="p-4" style={{ fontSize: "1.2em", maxWidth: "600px", margin: "0 auto" }}>
-                <Form.Group controlId="username" className="mb-3">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="username"
-                        value={username}
-                        onChange={handleUsernameChange}
-                        style={{ fontSize: "1.2em", padding: "10px" }}
-                    />
-                </Form.Group>
-                <Form.Group controlId="firstName" className="mb-3">
-                    <Form.Label>First Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="firstName"
-                        value={firstName}
-                        onChange={handleFirstNameChange}
-                        style={{ fontSize: "1.2em", padding: "10px" }}
-                    />
-                </Form.Group>
-                <Form.Group controlId="lastName" className="mb-3">
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="lastName"
-                        value={lastName}
-                        onChange={handleLastNameChange}
-                        style={{ fontSize: "1.2em", padding: "10px" }}
-                    />
-                </Form.Group>
-                <Button variant="primary" type="submit" disabled={disableButton} style={{ fontSize: "1.2em", padding: "10px 20px" }}>
-                    Save Changes
-                </Button>
-            </Form>
+                <Form onSubmit={handleSubmit} className="p-4 shadow-lg rounded" style={{ fontSize: "1.2em", maxWidth: "600px", margin: "0 auto", backgroundColor: "#f9f9f9" }}>
+                    <Form.Group controlId="username" className="mb-4">
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="username"
+                            value={username}
+                            onChange={handleUsernameChange}
+                            style={{ fontSize: "1.1em", padding: "12px" }}
+                        />
+                    </Form.Group>
+
+                    <Form.Group controlId="firstName" className="mb-4">
+                        <Form.Label>First Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="firstName"
+                            value={firstName}
+                            onChange={handleFirstNameChange}
+                            style={{ fontSize: "1.1em", padding: "12px" }}
+                        />
+                    </Form.Group>
+
+                    <Form.Group controlId="lastName" className="mb-4">
+                        <Form.Label>Last Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="lastName"
+                            value={lastName}
+                            onChange={handleLastNameChange}
+                            style={{ fontSize: "1.1em", padding: "12px" }}
+                        />
+                    </Form.Group>
+
+                    <div className="text-center">
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            disabled={disableButton}
+                            style={{ fontSize: "1.2em", padding: "10px 30px", width: "100%" }}>
+                            Save Changes
+                        </Button>
+                    </div>
+                </Form>
+            </div>
 
             {loading && (
                 <div className="text-center">
@@ -227,7 +238,7 @@ function EditProfile() {
                     </div>
                 </div>
                 <div className="bg-secondary text-center py-2" style={{ height: "3.5rem" }}>
-                    <p className="mb-0">&copy; 2023 Bus Reservation. All rights reserved.</p>
+                    <p className="mb-0">&copy; 2024 Bus Reservation. All rights reserved.</p>
                 </div>
             </footer>
         </div>

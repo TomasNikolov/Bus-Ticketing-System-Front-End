@@ -88,7 +88,7 @@ function AdminDashboard() {
                     </div>
                 </div>
                 <div className="bg-secondary text-center py-2" style={{ height: "3.5rem" }}>
-                    <p className="mb-0">&copy; 2023 Bus Reservation. All rights reserved.</p>
+                    <p className="mb-0">&copy; 2024 Bus Reservation. All rights reserved.</p>
                 </div>
             </footer>
         </div>
