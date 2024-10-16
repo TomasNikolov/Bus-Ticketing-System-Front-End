@@ -5,6 +5,7 @@ import logo from './styles/images/bus-logo.png';
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BeatLoader } from "react-spinners";
 
 const LOGIN_URL = process.env.REACT_APP_BACK_END_ENDPOINT + '/authenticate';
 
@@ -14,6 +15,7 @@ function LoginPage() {
     const [usernameError, setUsernameError] = useState('');
     const [passError, setPassError] = useState('');
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleUsernameChange = (event) => {
@@ -27,6 +29,8 @@ function LoginPage() {
     };
 
     const handleSubmit = async (e) => {
+        console.log('LOGIN URL: ' + LOGIN_URL);
+        setLoading(true);
         e.preventDefault();
 
         if (!username.trim()) {
@@ -66,12 +70,14 @@ function LoginPage() {
                 return;
             }
 
+            setLoading(false);
             setMessage("Login successful!");
             localStorage.setItem("username", username);
             setUsername("");
             setPassword("");
             navigate("/home");
         } catch (err) {
+            setLoading(false);
             if (!err?.response) {
                 setMessage('No Server Response');
             } else if (err.response?.status === 400) {
@@ -86,6 +92,11 @@ function LoginPage() {
 
     return (
         <div className="login-body container-fluid d-flex justify-content-center align-items-center vh-100">
+            {loading && (
+                <div className="text-center" style={{ backgroundColor: "#123abc", padding: "20px" }}>
+                    <BeatLoader color={"#ffffff"} loading={loading} />
+                </div>
+            )}
             <div className="card col-sm-8 col-md-6 col-lg-4">
                 <div className="card-header">
                     <img src={logo} alt="Bus Logo" className="bus-logo" />
