@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const LOGIN_URL = 'http://localhost:8080/authenticate';
+const LOGIN_URL = process.env.REACT_APP_BACK_END_ENDPOINT + '/authenticate';
 
 function LoginPage() {
     const [username, setUsername] = useState('');

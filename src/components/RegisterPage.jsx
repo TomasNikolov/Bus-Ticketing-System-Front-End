@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
 
-const CONFIRMATION_URL = 'http://localhost:3000/confirm-account?token=';
-const REGISTER_URL = 'http://localhost:8080/user/register';
+const CONFIRMATION_URL = process.env.REACT_APP_ENDPOINT + '/confirm-account?token=';
+const REGISTER_URL = process.env.REACT_APP_BACK_END_ENDPOINT + '/user/register';
 
 function RegisterPage() {
     const [username, setUsername] = useState('');
@@ -187,42 +187,6 @@ function RegisterPage() {
                         {message && <div className="alert alert-danger mt-2">{message}</div>}
                         <button type="submit" className="btn btn-primary btn-block mt-4" disabled={disableButton}>Register</button>
                     </form>
-
-
-                    {/* <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="username">Username:</label>
-                            <input type="text" id="username" className="form-control" value={username} autoFocus required onChange={handleUsernameChange} />
-                            {usernameError && <div className="alert alert-danger mt-2">{usernameError}</div>}
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="email">Email:</label>
-                            <input type="email" id="email" className="form-control" value={email} autoFocus required onChange={handleEmailChange} />
-                            {emailError && <div className="alert alert-danger mt-2">{emailError}</div>}
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="firstName">First Name :</label>
-                            <input type="text" id="firstName" className="form-control" value={firstName} autoFocus required onChange={handleFirtstNameChange} />
-                            {firstNameError && <div className="alert alert-danger mt-2">{firstNameError}</div>}
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="lastName">Last Name:</label>
-                            <input type="text" id="lastName" className="form-control" value={lastName} autoFocus required onChange={handleLastNameChange} />
-                            {lastNameError && <div className="alert alert-danger mt-2">{lastNameError}</div>}
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password">Password:</label>
-                            <input type="password" id="password" className="form-control" value={password} autoFocus required onChange={handlePasswordChange} />
-                            {passwordError && <div className="alert alert-danger mt-2">{passwordError}</div>}
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="confirmPassword">Confirm Password:</label>
-                            <input type="password" id="confirmPassword" className="form-control" value={confirmPassword} autoFocus required onChange={handleConfirmPasswordChange} />
-                            {confirmPasswordError && <div className="alert alert-danger mt-2">{confirmPasswordError}</div>}
-                        </div>
-                        {message && <div className="alert alert-danger mt-2">{message}</div>}
-                        <button type="submit" className="btn btn-primary btn-block mt-4" disabled={disableButton}>Register</button>
-                    </form> */}
                 </div>
                 <div className="card-footer">
                     <p className="text-center mb-0">Already have an account? <Link to="/">Login here.</Link></p>

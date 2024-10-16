@@ -7,7 +7,7 @@ import axios from "axios";
 import { Link } from 'react-router-dom';
 import { Navbar, Nav } from 'react-bootstrap';
 
-const PAYMENT_URL = 'http://localhost:8080/payment';
+const PAYMENT_URL = process.env.REACT_APP_BACK_END_ENDPOINT + '/payment';
 
 function PaymentPage() {
     const userId = localStorage.getItem('userId');

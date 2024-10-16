@@ -6,7 +6,7 @@ import axios from "axios";
 import { Navbar, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-const RESERVE_TICKET_URL = 'http://localhost:8080/ticket/reserve';
+const RESERVE_TICKET_URL = process.env.REACT_APP_BACK_END_ENDPOINT + '/ticket/reserve';
 
 function BookingPage() {
     const userId = localStorage.getItem('userId');

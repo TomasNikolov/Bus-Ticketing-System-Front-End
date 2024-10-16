@@ -48,7 +48,7 @@ function UserManagementPage() {
             setSuccessMessage('');
             setLoading(true);
             try {
-                const response = await axios.get("http://localhost:8080/admin/users",
+                const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/users",
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ function UserManagementPage() {
         console.log('UPDATED USER: ', JSON.stringify(updatedUser));
 
         try {
-            const response = await axios.put("http://localhost:8080/admin/users",
+            const response = await axios.put(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/users",
                 JSON.stringify(updatedUser),
                 {
                     headers: {
@@ -149,7 +149,7 @@ function UserManagementPage() {
     const handleDelete = async (user) => {
         setLoading(true);
         try {
-            const response = await axios.delete(`http://localhost:8080/admin/users?id=${user.id}`,
+            const response = await axios.delete(process.env.REACT_APP_BACK_END_ENDPOINT + `/admin/users?id=${user.id}`,
                 {
                     headers: {
                         'Content-Type': 'application/json',

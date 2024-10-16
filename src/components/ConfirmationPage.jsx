@@ -15,7 +15,7 @@ function ConfirmationPage() {
                 const token = new URLSearchParams(location.search).get('token');
                 console.log('TOKEN: ', token);
                 
-                const response = await axios.get(`http://localhost:8080/user/confirm-account?token=${token}`, {
+                const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + `/user/confirm-account?token=${token}`, {
                     headers: {
                         'Content-Type': 'application/json'
                     }

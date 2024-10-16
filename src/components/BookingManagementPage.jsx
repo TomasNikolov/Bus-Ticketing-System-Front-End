@@ -50,7 +50,7 @@ function BookingManagementPage() {
             setSuccessMessage('');
             setLoading(true);
             try {
-                const response = await axios.get("http://localhost:8080/admin/bookings",
+                const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/bookings",
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ function BookingManagementPage() {
         console.log('UPDATED BOOKING: ', JSON.stringify(updatedBooking));
 
         try {
-            const response = await axios.put("http://localhost:8080/admin/bookings",
+            const response = await axios.put(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/bookings",
                 JSON.stringify(updatedBooking),
                 {
                     headers: {
@@ -154,7 +154,7 @@ function BookingManagementPage() {
     const handleDelete = async (booking) => {
         setLoading(true);
         try {
-            const response = await axios.delete(`http://localhost:8080/admin/bookings?id=${booking.id}`,
+            const response = await axios.delete(process.env.REACT_APP_BACK_END_ENDPOINT + `/admin/bookings?id=${booking.id}`,
                 {
                     headers: {
                         'Content-Type': 'application/json',

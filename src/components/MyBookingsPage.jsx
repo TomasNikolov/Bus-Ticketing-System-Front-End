@@ -47,7 +47,7 @@ function MyBookingsPage() {
             setLoading(true);
 
             try {
-                const response = await axios.get(`http://localhost:8080/booking?userId=${userId}`);
+                const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + `/booking?userId=${userId}`);
 
                 console.log("RESPONSE: ", JSON.stringify(response?.data));
 
@@ -81,7 +81,7 @@ function MyBookingsPage() {
         setDisableButton(true);
 
         try {
-            const response = await axios.delete(`http://localhost:8080/booking?id=${booking.id}`,
+            const response = await axios.delete(process.env.REACT_APP_BACK_END_ENDPOINT + `/booking?id=${booking.id}`,
                 {
                     headers: { 'Content-Type': 'application/json' }
                 }
@@ -125,7 +125,7 @@ function MyBookingsPage() {
         setDisableButton(true);
 
         try {
-            const response = await axios.get(`http://localhost:8080/ticket/send?ticketId=${booking.ticketId}`,
+            const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + `/ticket/send?ticketId=${booking.ticketId}`,
                 {
                     headers: { 'Content-Type': 'application/json' }
                 }

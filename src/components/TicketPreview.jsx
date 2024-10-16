@@ -5,7 +5,7 @@ import axios from "axios";
 import { Link } from 'react-router-dom';
 import { Navbar, Nav } from 'react-bootstrap';
 
-const DELETE_TICKET_URL = 'http://localhost:8080/ticket/delete';
+const DELETE_TICKET_URL = process.env.REACT_APP_BACK_END_ENDPOINT + '/ticket/delete';
 
 function TicketPreview() {
     const startDestination = localStorage.getItem('startDestination');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Button, Modal, Form, Nav, Navbar, NavDropdown, Row, Col } from "react-bootstrap";
-import { json, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,6 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
 import * as XLSX from 'xlsx';
 import './styles/BusManagmentPage.css';
-import { ProgressSpinner } from 'primereact/progressspinner';
 
 function BusManagementPage() {
     const navigate = useNavigate();
@@ -54,7 +53,7 @@ function BusManagementPage() {
             setSuccessMessage('');
             setLoading(true);
             try {
-                const response = await axios.get("http://localhost:8080/admin/buses",
+                const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/buses",
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -119,7 +118,7 @@ function BusManagementPage() {
         };
 
         try {
-            const response = await axios.post("http://localhost:8080/admin/buses",
+            const response = await axios.post(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/buses",
                 JSON.stringify(newBus),
                 {
                     headers: {
@@ -182,7 +181,7 @@ function BusManagementPage() {
         console.log('UPDATED BUS: ', JSON.stringify(updatedBus));
 
         try {
-            const response = await axios.put("http://localhost:8080/admin/buses",
+            const response = await axios.put(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/buses",
                 JSON.stringify(updatedBus),
                 {
                     headers: {
@@ -225,7 +224,7 @@ function BusManagementPage() {
     const handleDelete = async (bus) => {
         setLoading(true);
         try {
-            const response = await axios.delete(`http://localhost:8080/admin/buses?id=${bus.id}`,
+            const response = await axios.delete(process.env.REACT_APP_BACK_END_ENDPOINT + `/admin/buses?id=${bus.id}`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -281,7 +280,7 @@ function BusManagementPage() {
 
     const createBuses = async (busesData) => {
         try {
-            const response = await axios.post("http://localhost:8080/admin/buses/bulk",
+            const response = await axios.post(process.env.REACT_APP_BACK_END_ENDPOINT + "/admin/buses/bulk",
                 JSON.stringify(busesData),
                 {
                     headers: {

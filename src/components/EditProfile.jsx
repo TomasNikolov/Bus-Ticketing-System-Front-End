@@ -23,7 +23,7 @@ function EditProfile() {
             setSuccessMessage('');
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:8080/user?username=${name}`,
+                const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + `/user?username=${name}`,
                     {
                         headers: {
                             'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ function EditProfile() {
         console.log('User: ', JSON.stringify(data));
 
         try {
-            const response = await axios.put("http://localhost:8080/user",
+            const response = await axios.put(process.env.REACT_APP_BACK_END_ENDPOINT + "/user",
                 JSON.stringify(data),
                 {
                     headers: {

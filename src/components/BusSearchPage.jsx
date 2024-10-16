@@ -70,7 +70,7 @@ function BusSearchPage() {
         }
 
         try {
-            const response = await axios.get(`http://localhost:8080/buses?start=${startDestination}&end=${endDestination}&date=${date}`,
+            const response = await axios.get(process.env.REACT_APP_BACK_END_ENDPOINT + `/buses?start=${startDestination}&end=${endDestination}&date=${date}`,
                 {
                     headers: {
                         'Content-Type': 'application/json'
