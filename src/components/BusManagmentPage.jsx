@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Button, Modal, Form, Nav, Navbar, NavDropdown, Row, Col } from "react-bootstrap";
-import { Link } from 'react-router-dom';
+import { json, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,9 @@ import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
+import * as XLSX from 'xlsx';
+import './styles/BusManagmentPage.css';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 function BusManagementPage() {
     const navigate = useNavigate();
@@ -24,6 +27,7 @@ function BusManagementPage() {
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const toast = useRef(null);
+    const [data, setData] = useState(null);
 
     const accept = (bus) => {
         handleDelete(bus);
@@ -275,6 +279,121 @@ function BusManagementPage() {
         return <InputNumber value={options.value} onChange={(e) => options.filterCallback(e.value, options.index)} mode="currency" currency="BGN" locale="bg-BG" />;
     };
 
+    const createBuses = async (busesData) => {
+        try {
+            const response = await axios.post("http://localhost:8080/admin/buses/bulk",
+                JSON.stringify(busesData),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    }
+                }
+            );
+
+            if (response?.status === 201) {
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'All buses has been successfully uploaded!', life: 5000 });
+                setTimeout(() => {
+                    window.location.reload();
+                    setLoading(false);
+                }, 5000);
+            }
+        } catch (err) {
+            if (!err?.response) {
+                setMessage('No Server Response');
+                setLoading(false);
+            } else if (err.response?.status === 403) {
+                console.log(JSON.stringify(err.response));
+                setMessage("Access Denied. You don't have permission to access this resource. Please contact the system administrator if you believe you should have access.");
+                setLoading(false);
+            } else if (err.response?.status === 404) {
+                console.log(JSON.stringify(err.response?.data?.message[0]));
+                setMessage(err.response?.data?.message[0]);
+                setLoading(false);
+            } else {
+                setMessage("Internal server error");
+                setLoading(false);
+            }
+        }
+    }
+
+    const handleFileUpload = (e) => {
+        setLoading(true);
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            const workbook = XLSX.read(event.target.result, { type: 'binary' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const sheetData = XLSX.utils.sheet_to_json(sheet);
+
+            let transformedData = transformKeys(sheetData);
+            console.log('SHEET DATA: ' + JSON.stringify(transformedData, null, 2));
+            createBuses(transformedData);
+        };
+
+        reader.readAsBinaryString(file);
+        document.getElementById("file-upload").value = "";
+    };
+
+    const transformKeys = (data) => {
+        const excelDateToJSDate = (serial) => {
+            const excelStartDate = new Date(1900, 0, 1);
+            const days = serial - 1;
+            return new Date(excelStartDate.getTime() + days * 24 * 60 * 60 * 1000);
+        };
+
+        const parseExcelTime = (fraction) => {
+            const totalSeconds = fraction * 24 * 60 * 60;
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = Math.floor(totalSeconds % 60);
+            return { hours, minutes, seconds };
+        };
+
+        const formatForBackend = (date, time) => {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate() - 1).padStart(2, '0');
+            const formattedDate = `${yyyy}-${mm}-${dd}`;
+            const formattedTime = time;
+            return { formattedDate, formattedTime };
+        };
+
+        return data.map(item => {
+            const transformedItem = {};
+
+            Object.keys(item).forEach(key => {
+                const newKey = key.charAt(0).toLowerCase() + key.slice(1).replace(/\s+/g, '');
+
+                if (newKey === 'departureDate' || newKey === 'arrivalDate') {
+                    const jsDate = excelDateToJSDate(item[key]);
+                    transformedItem[newKey] = jsDate;
+                } else if (newKey === 'departureTime' || newKey === 'arrivalTime') {
+                    const parsedTime = parseExcelTime(item[key]);
+                    transformedItem[newKey] = `${String(parsedTime.hours).padStart(2, '0')}:${String(parsedTime.minutes).padStart(2, '0')}:${String(parsedTime.seconds).padStart(2, '0')}`;
+                } else {
+                    transformedItem[newKey] = item[key];
+                }
+            });
+
+            if (transformedItem.departureDate && transformedItem.departureTime) {
+                const formattedDeparture = formatForBackend(transformedItem.departureDate, transformedItem.departureTime);
+                transformedItem.departureDate = formattedDeparture.formattedDate;
+                transformedItem.departureTime = formattedDeparture.formattedTime;
+            }
+
+            if (transformedItem.arrivalDate && transformedItem.arrivalTime) {
+                const formattedArrival = formatForBackend(transformedItem.arrivalDate, transformedItem.arrivalTime);
+                transformedItem.arrivalDate = formattedArrival.formattedDate;
+                transformedItem.arrivalTime = formattedArrival.formattedTime;
+            }
+
+            return transformedItem;
+        });
+    };
+
     return (
         <div style={{ background: "#f5f5f5" }}>
             <Toast ref={toast} />
@@ -309,6 +428,12 @@ function BusManagementPage() {
             </Navbar>
 
             <Container className="mt-4" style={{ paddingTop: "2rem" }}>
+                {loading && (
+                    <div className="text-center">
+                        <BeatLoader color={"#123abc"} loading={loading} />
+                    </div>
+                )}
+
                 {message &&
                     <div className="alert alert-danger mt-2">
                         {message}
@@ -325,6 +450,17 @@ function BusManagementPage() {
                         <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         Add Bus
                     </Button>
+                    <label htmlFor="file-upload" className="custom-file-upload">
+                        <i className="pi pi-upload"></i> Upload Buses
+                    </label>
+                    <input
+                        type="file"
+                        id="file-upload"
+                        onChange={handleFileUpload}
+                        accept=".xlsx"
+                        aria-label="File upload input"
+                        style={{ display: 'none', width: "10" }}
+                    />
                 </div>
                 <div className="table-responsive">
                     {buses.length === 0 ? (
@@ -445,12 +581,6 @@ function BusManagementPage() {
                         </DataTable>
                     )}
                 </div>
-
-                {loading && (
-                    <div className="text-center">
-                        <BeatLoader color={"#123abc"} loading={loading} />
-                    </div>
-                )}
 
                 <Modal show={showAddModal} onHide={handleAddClose}>
                     <Modal.Header closeButton>
