@@ -129,7 +129,7 @@ function BookingManagementPage() {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Booking has been successfully updated!', life: 5000 });
                 setTimeout(() => {
                     setSelectedBooking(null);
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                 }, 5000);
             }
@@ -169,7 +169,7 @@ function BookingManagementPage() {
             if (response?.status === 204) {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Booking has been successfully deleted!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                 }, 5000);
             }

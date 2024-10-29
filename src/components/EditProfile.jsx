@@ -107,7 +107,6 @@ function EditProfile() {
                 setLoading(false);
                 setDisableButton(false);
                 navigate(0);
-                // window.location.reload();
             }
         } catch (err) {
             if (!err?.response) {

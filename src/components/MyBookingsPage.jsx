@@ -93,7 +93,7 @@ function MyBookingsPage() {
             if (response?.status === 204) {
                 toast.current.show({ severity: 'success', summary: 'Confirmed', detail: 'Booking cancelled successfully!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                     setDisableButton(false);
                 }, 5000);
@@ -137,7 +137,7 @@ function MyBookingsPage() {
             if (response?.status === 200) {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Ticket successfully generated!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                     setDisableButton(false);
                 }, 5000);

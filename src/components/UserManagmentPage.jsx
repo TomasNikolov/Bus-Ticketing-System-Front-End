@@ -123,7 +123,7 @@ function UserManagementPage() {
                 setShowEditModal(false);
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'User has been successfully updated!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                     setSelectedUser(null);
                 }, 5000);
@@ -164,7 +164,7 @@ function UserManagementPage() {
             if (response?.status === 204) {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'User has been successfully deleted!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                 }, 5000);
             }

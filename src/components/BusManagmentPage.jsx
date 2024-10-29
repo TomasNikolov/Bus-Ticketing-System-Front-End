@@ -135,7 +135,7 @@ function BusManagementPage() {
                 setShowEditModal(false);
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'The bus has been successfully created!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                 }, 5000);
             }
@@ -198,7 +198,7 @@ function BusManagementPage() {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'The bus has been successfully updated!', life: 5000 });
                 setTimeout(() => {
                     setSelectedBus(null);
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                 }, 5000);
             }
@@ -238,7 +238,7 @@ function BusManagementPage() {
             if (response?.status === 204) {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'The bus has been successfully deleted!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                 }, 5000);
             }
@@ -293,7 +293,7 @@ function BusManagementPage() {
             if (response?.status === 201) {
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'All buses has been successfully uploaded!', life: 5000 });
                 setTimeout(() => {
-                    window.location.reload();
+                    navigate(0);
                     setLoading(false);
                 }, 5000);
             }
