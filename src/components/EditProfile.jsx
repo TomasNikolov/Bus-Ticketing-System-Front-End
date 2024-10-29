@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
+import GeminiChatBot from './GeminiChatBot';
 
 function EditProfile() {
     const name = localStorage.getItem('username');
@@ -212,6 +213,8 @@ function EditProfile() {
                         </Button>
                     </div>
                 </Form>
+
+                <GeminiChatBot />
             </div>
 
             {loading && (

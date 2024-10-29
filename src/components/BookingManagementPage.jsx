@@ -14,6 +14,7 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import './styles/BusSearchPage.css';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
+import GeminiChatBot from './GeminiChatBot';
 
 function BookingManagementPage() {
     const navigate = useNavigate();
@@ -407,6 +408,8 @@ function BookingManagementPage() {
                         </Modal.Body>
                     </Modal>
                 )}
+
+                <GeminiChatBot />
             </Container>
 
             <footer className="bg-dark text-white py-3" style={{ marginTop: "15rem", height: "10rem" }}>

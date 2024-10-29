@@ -99,6 +99,8 @@ const ChatAssistant = () => {
                             bus: bus,
                         }));
 
+                        options.push({ label: "None of these options work for me" });
+
                         setBusOptions(options);
                     }
                 } catch (err) {
@@ -144,6 +146,9 @@ const ChatAssistant = () => {
             ),
             options: busOptions.map(option => option.label),
             function: async (params) => {
+                if (params.userInput === 'None of these options work for me') {
+                    return;
+                }
                 setTimeout(() => {
                     let bus = busOptions.find(option => option.label === params.userInput).bus;
                     localStorage.setItem('busId', bus.id);
@@ -162,7 +167,12 @@ const ChatAssistant = () => {
                 }, 5000);
             },
             chatDisabled: true,
-            path: "succes_end"
+            path: async (params) => {
+                if (params.userInput === 'None of these options work for me') {
+                    return "repeat";
+                }
+                return "succes_end"
+            }
         },
         succes_end: {
             message: (params) => `You have chosen ${params.userInput}. Please hold on! I'll take you to the booking page shortly.`,

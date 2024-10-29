@@ -13,6 +13,7 @@ import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
+import GeminiChatBot from './GeminiChatBot';
 
 function MyBookingsPage() {
     const userId = localStorage.getItem('userId');
@@ -213,6 +214,11 @@ function MyBookingsPage() {
 
             <div className="container">
                 <h1 style={{ textAlign: "center", paddingBottom: "2rem" }}>My Bookings</h1>
+                {loading && (
+                    <div className="text-center">
+                        <BeatLoader color={"#123abc"} loading={loading} />
+                    </div>
+                )}
                 {message && <div className="alert alert-danger mt-2">{message}</div>}
                 {bookings.length === 0 ? <InfoMessage /> : (
                     <DataTable
@@ -302,11 +308,7 @@ function MyBookingsPage() {
                     </DataTable>
                 )}
 
-                {loading && (
-                    <div className="text-center">
-                        <BeatLoader color={"#123abc"} loading={loading} />
-                    </div>
-                )}
+                <GeminiChatBot />
             </div>
 
             <footer className="bg-dark text-white py-3" style={{ marginTop: "15rem", height: "10rem" }}>

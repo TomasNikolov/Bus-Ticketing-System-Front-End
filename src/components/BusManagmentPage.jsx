@@ -15,6 +15,7 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
 import * as XLSX from 'xlsx';
 import './styles/BusManagmentPage.css';
+import GeminiChatBot from './GeminiChatBot';
 
 function BusManagementPage() {
     const navigate = useNavigate();
@@ -26,7 +27,6 @@ function BusManagementPage() {
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const toast = useRef(null);
-    const [data, setData] = useState(null);
 
     const accept = (bus) => {
         handleDelete(bus);
@@ -905,6 +905,8 @@ function BusManagementPage() {
                         </Modal.Body>
                     </Modal>
                 )}
+
+                <GeminiChatBot />
             </Container>
 
             <footer

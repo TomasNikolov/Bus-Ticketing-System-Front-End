@@ -12,6 +12,7 @@ import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
+import GeminiChatBot from './GeminiChatBot';
 
 function UserManagementPage() {
     const navigate = useNavigate();
@@ -365,6 +366,8 @@ function UserManagementPage() {
                         </Modal.Body>
                     </Modal>
                 )}
+
+                <GeminiChatBot />
             </Container>
 
             <footer className="bg-dark text-white py-3" style={{ marginTop: "15rem", height: "10rem" }}>

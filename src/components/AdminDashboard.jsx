@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBus, faUsers, faClipboardList } from "@fortawesome/free-solid-svg-icons";
+import GeminiChatBot from './GeminiChatBot';
 
 function AdminDashboard() {
     const navigate = useNavigate();
@@ -68,6 +69,8 @@ function AdminDashboard() {
                         <div className="admin-page-action-title">User Management</div>
                     </Link>
                 </div>
+
+                <GeminiChatBot />
             </div>
 
             <footer className="bg-dark text-white py-3" style={{ marginTop: "10rem", height: "10rem" }}>
