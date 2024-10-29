@@ -106,7 +106,8 @@ function EditProfile() {
                 setTimeout(() => { }, 5000);
                 setLoading(false);
                 setDisableButton(false);
-                window.location.reload();
+                navigate(0);
+                // window.location.reload();
             }
         } catch (err) {
             if (!err?.response) {
