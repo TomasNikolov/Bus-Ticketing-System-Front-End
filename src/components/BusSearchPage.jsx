@@ -8,10 +8,10 @@ import { Navbar, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { InputNumber } from 'primereact/inputnumber';
 import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import ChatAssistant from './ChatAssistant';
 
 function BusSearchPage() {
     const [startDestination, setStartDestination] = useState('');
@@ -22,8 +22,6 @@ function BusSearchPage() {
     const [endError, setEndError] = useState('');
     const [dateError, setDateError] = useState('');
     const [busData, setBusData] = useState([]);
-    const [filters, setFilters] = useState(null);
-    const [globalFilterValue, setGlobalFilterValue] = useState('');
     const navigate = useNavigate();
 
     const handleStarDestinationChange = (event) => {
@@ -118,31 +116,6 @@ function BusSearchPage() {
 
     const formatCurrency = (value) => {
         return value.toLocaleString('bg-BG', { style: 'currency', currency: 'BGN' });
-    };
-
-    const clearFilter = () => {
-        initFilters();
-    };
-
-    const onGlobalFilterChange = (e) => {
-        const value = e.target.value;
-        let _filters = { ...filters };
-
-        _filters['global'].value = value;
-
-        setFilters(_filters);
-        setGlobalFilterValue(value);
-    };
-
-    const initFilters = () => {
-        setFilters({
-            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            departureTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
-            arrivalTime: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.TIME_IS }] },
-            ticketPrice: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
-        });
-        setGlobalFilterValue('');
     };
 
     const ticketPriceBodyTemplate = (rowData) => {
@@ -241,8 +214,6 @@ function BusSearchPage() {
                             rows={10}
                             dataKey="id"
                             className="styled-table"
-                            filters={filters}
-                            globalFilterFields={['name', 'departureTime', 'arrivalTime', 'ticketPrice']}
                         >
                             <Column field="name"
                                 header="Bus Name"
@@ -296,6 +267,8 @@ function BusSearchPage() {
                         </DataTable>
                     )}
                 </div>
+
+                <ChatAssistant />
             </div>
 
             <footer

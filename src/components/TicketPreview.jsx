@@ -10,7 +10,6 @@ const DELETE_TICKET_URL = process.env.REACT_APP_BACK_END_ENDPOINT + '/ticket/del
 function TicketPreview() {
     const startDestination = localStorage.getItem('startDestination');
     const endDestination = localStorage.getItem("endDestination");
-    const busId = localStorage.getItem('busId');
     const departureDate = localStorage.getItem('departureDate');
     const departureTime = localStorage.getItem('departureTime');
     const arrivalTime = localStorage.getItem('arrivalTime');
@@ -28,8 +27,6 @@ function TicketPreview() {
             ticketInfo.forEach((ticket) => {
                 data.push(ticket.id)
             });
-
-            console.log('DATA: ', JSON.stringify(data));
             const response = await axios.delete(DELETE_TICKET_URL,
                 {
                     data: JSON.stringify(data),
@@ -102,7 +99,6 @@ function TicketPreview() {
                                 <h3>Ticket Details</h3>
                                 <ul style={{ listStyle: "none", padding: 0 }}>
                                     <li><strong>Passenger Name:</strong> {ticket.passengerName}</li>
-                                    <li><strong>Bus ID:</strong> {ticket.busId}</li>
                                     <li><strong>Departure Date:</strong> {departureDate}</li>
                                     <li><strong>Departure Time:</strong> {departureTime}</li>
                                     <li><strong>Arrival Time:</strong> {arrivalTime}</li>
@@ -113,7 +109,6 @@ function TicketPreview() {
                             <div className="col-md-6">
                                 <h3>Bus Details</h3>
                                 <ul style={{ listStyle: "none", padding: 0 }}>
-                                    <li><strong>Bus ID:</strong> {busId}</li>
                                     <li><strong>Start Destination:</strong> {startDestination}</li>
                                     <li><strong>End Destination:</strong> {endDestination}</li>
                                     <li><strong>Departure Time:</strong> {departureTime}</li>
